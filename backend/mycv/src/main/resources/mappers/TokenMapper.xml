@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.mycv.application.mapper.TokenMapper">
+    <insert id="insert" parameterType="com.project.mycv.domain.model.Token">
+        INSERT INTO tokens (token, user_id, refresh_token, is_revoked, is_expired, expiry_date)
+        VALUES (#{token}, #{userId}, #{refreshToken}, #{isRevoked}, #{isExpired}, #{expiryDate})
+    </insert>
+
+    <select id="findByToken" resultType="com.project.mycv.domain.model.Token">
+        SELECT id, user_id, refresh_token, is_revoked, is_expired,
+        device_info, expiry_date, created_date, updated_date
+        FROM tokens
+        WHERE refresh_token = #{refreshToken}
+    </select>
+
+    <update id="revokeToken" parameterType="UUID">
+        UPDATE tokens
+        SET is_revoked = true
+        WHERE refresh_token = #{refreshToken}
+    </update>
+
+    <update id="update" parameterType="com.project.mycv.domain.dto.TokenUpdateDTO">
+        UPDATE tokens
+        is_revoked = #{isRevoked},
+        is_expired = #{isExpired},
+        expiry_date = #{expiryDate},
+        device_info = #{deviceInfo},
+        updated_date = NOW()
+        WHERE refresh_token = #{refreshToken}
+    </update>
+
+    <delete id="delete" parameterType="UUID">
+        DELETE FROM tokens
+        WHERE refresh_token = #{refreshToken}
+    </delete>
+</mapper>

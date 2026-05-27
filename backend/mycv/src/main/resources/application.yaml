@@ -1,0 +1,49 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mycv}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_USERNAME:password}
+    driver-class-name: org.postgresql.Driver
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: true
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.project.mycv.domain.model
+  map-underscore-to-camel-case: true
+api:
+  version1: api/v1
+logging:
+  config: classpath:config/log/logback.xml
+jwt:
+  expiration:
+    access-token: ${JWT_ACCESS_TOKEN:600} # 10 minutes
+    refresh-token: ${JWT_REFRESH_TOKEN:604800} # 7 days
+  secret-key: ${JWT_SECRET_KEY}
+cookie:
+  domain: ${COOKIE_DOMAIN:localhost}
+app:
+  client:
+    url: ${CLIENT_URL:http://localhost:3000}
+  security:
+    cors:
+      allowed-origins:
+        - ${CLIENT_URL:http://localhost:3000}
+    password:
+      salt: ${PASSWORD_SALT}

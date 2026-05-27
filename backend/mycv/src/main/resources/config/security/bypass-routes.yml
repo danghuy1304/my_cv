@@ -1,0 +1,8 @@
+bypass:
+  routes:
+    - path: /api/v1/users/login
+      method: POST
+    - path: /api/v1/users/register
+      method: POST
+    - path: /actuator/health
+      method: GET

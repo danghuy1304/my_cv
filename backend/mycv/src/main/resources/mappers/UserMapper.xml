@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.UserMapper">
+
+    <resultMap id="UserDTOResultMap" type="com.project.mycv.domain.dto.UserDTO">
+        <id property="id" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="status" column="status"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="updatedDate" column="updated_date"/>
+
+        <association property="role" javaType="com.project.mycv.domain.dto.RoleDTO">
+            <id property="id" column="role_id"/>
+            <result property="roleName" column="role_name"/>
+        </association>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="com.project.mycv.domain.dto.UserInsertDTO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO users (username, password, email, role_id)
+        VALUES (#{username}, #{password}, #{email}, #{roleId})
+    </insert>
+
+    <select id="findAll" resultMap="UserDTOResultMap">
+        SELECT
+        u.id AS user_id,
+        u.username,
+        u.password,
+        u.email,
+        u.status,
+        u.created_date,
+        u.updated_date,
+        r.id AS role_id,
+        r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+    </select>
+
+    <select id="findByUsername" resultMap="UserDTOResultMap">
+        SELECT
+        u.id AS user_id,
+        u.username,
+        u.password,
+        u.email,
+        u.status,
+        u.created_date,
+        u.updated_date,
+        r.id AS role_id,
+        r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.username = #{username}
+    </select>
+
+    <select id="findById" resultMap="UserDTOResultMap">
+        SELECT
+        u.id AS user_id,
+        u.username,
+        u.password,
+        u.email,
+        u.status,
+        u.created_date,
+        u.updated_date,
+        r.id AS role_id,
+        r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.id = #{id}
+    </select>
+
+</mapper>
