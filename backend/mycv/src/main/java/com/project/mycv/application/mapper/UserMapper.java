@@ -1,20 +1,20 @@
 package com.project.mycv.application.mapper;
 
+import com.project.mycv.application.mapper.base.ReadableMapper;
 import com.project.mycv.domain.dto.UserDTO;
-import com.project.mycv.domain.model.User;
+import com.project.mycv.domain.dto.UserInsertDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 @Mapper
-public interface UserMapper {
-    int insert(User user);
-
-    List<UserDTO> findAll();
+public interface UserMapper extends ReadableMapper<UserDTO, Long> {
+    boolean insert(UserInsertDTO userInsertDTO);
 
     Optional<UserDTO> findByUsername(@Param("username") String username);
 
-    Optional<UserDTO> findById(@Param("id") Long id);
+    Optional<UserDTO> findByEmail(@Param("email") String email);
+
+    Optional<UserDTO> findByToken(@Param("token") String token);
 }

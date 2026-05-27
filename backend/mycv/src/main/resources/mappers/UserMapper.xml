@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.mapper.UserMapper">
+<mapper namespace="com.project.mycv.application.mapper.UserMapper">
 
     <resultMap id="UserDTOResultMap" type="com.project.mycv.domain.dto.UserDTO">
         <id property="id" column="user_id"/>
@@ -19,8 +19,7 @@
         </association>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.project.mycv.domain.dto.UserInsertDTO" useGeneratedKeys="true"
-            keyProperty="id">
+    <insert id="insert" parameterType="com.project.mycv.domain.dto.UserInsertDTO">
         INSERT INTO users (username, password, email, role_id)
         VALUES (#{username}, #{password}, #{email}, #{roleId})
     </insert>
@@ -56,6 +55,22 @@
         WHERE u.username = #{username}
     </select>
 
+    <select id="findByEmail" resultMap="UserDTOResultMap">
+        SELECT
+        u.id AS user_id,
+        u.username,
+        u.password,
+        u.email,
+        u.status,
+        u.created_date,
+        u.updated_date,
+        r.id AS role_id,
+        r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.email = #{email}
+    </select>
+
     <select id="findById" resultMap="UserDTOResultMap">
         SELECT
         u.id AS user_id,
@@ -72,4 +87,20 @@
         WHERE u.id = #{id}
     </select>
 
+    <select id="findByToken" resultMap="UserDTOResultMap">
+        SELECT
+        u.id AS user_id,
+        u.username,
+        u.password,
+        u.email,
+        u.status,
+        u.created_date,
+        u.updated_date,
+        r.id AS role_id,
+        r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        LEFT JOIN tokens t ON u.id = t.user_id
+        WHERE t.refresh_token = #{token}
+    </select>
 </mapper>

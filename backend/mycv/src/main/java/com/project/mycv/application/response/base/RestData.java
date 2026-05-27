@@ -12,76 +12,46 @@ public class RestData<Data> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String type;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String message;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<String> messages;
+    private List<String> errors;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Data data;
 
-    /**
-     * Instantiates a new Rest data.
-     *
-     * @param status  the status
-     * @param type    the user message
-     * @param message the dev message
-     * @param data    the data
-     */
-    public RestData(HttpStatus status, String type, String message, Data data) {
+    // ── Success constructors ──────────────────────────────────────────────────
+
+    public RestData(HttpStatus status, String type, Data data) {
         this.status = status.value();
         this.type = type;
-        this.message = message;
         this.data = data;
     }
 
+    public RestData(HttpStatus status, String type, String message, Data data) {
+        this.status = status.value();
+        this.type = type;
+        this.errors = List.of(message);
+        this.data = data;
+    }
+
+    // ── Error constructors ────────────────────────────────────────────────────
+
     /**
-     * Instantiates a new Rest data.
-     *
-     * @param status  the status
-     * @param type    the type
-     * @param message the message
+     * Single error — auto-wrapped into list
      */
     public RestData(HttpStatus status, String type, String message) {
         this.status = status.value();
         this.type = type;
-        this.message = message;
+        this.errors = List.of(message);
     }
 
     /**
-     * Instantiates a new Rest data.
-     *
-     * @param status  the status
-     * @param message the message
-     * @param data    the data
+     * Multiple errors
      */
-    public RestData(HttpStatus status, String message, Data data) {
-        this.status = status.value();
-        this.message = message;
-        this.data = data;
-    }
-
-    /**
-     * Instantiates a new Rest data.
-     *
-     * @param status   the status
-     * @param type     the type
-     * @param messages the messages
-     */
-    public RestData(HttpStatus status, String type, List<String> messages) {
+    public RestData(HttpStatus status, String type, List<String> errors) {
         this.status = status.value();
         this.type = type;
-        this.messages = messages;
+        this.errors = errors;
     }
 
-    /**
-     * Instantiates a new Rest data.
-     *
-     * @param status  the status
-     * @param message the message
-     */
-    public RestData(HttpStatus status, String message) {
-        this.status = status.value();
-        this.message = message;
-    }
+    // ── Static factory methods ────────────────────────────────────────────────
 
     public static RestData<?> success(HttpStatus status, Object data) {
         return new RestData<>(status, "Success", data);
@@ -96,37 +66,23 @@ public class RestData<Data> {
     }
 
     /**
-     * Error rest data.
-     *
-     * @param status  the status
-     * @param type    the type
-     * @param message the message
-     * @return the rest data
+     * Single error
      */
     public static RestData<?> error(HttpStatus status, String type, String message) {
         return new RestData<>(status, type, message);
     }
 
     /**
-     * Error rest data.
-     *
-     * @param status     the status
-     * @param devMessage the dev message
-     * @return the rest data
+     * Single error without type
      */
-    public static RestData<?> error(HttpStatus status, String devMessage) {
-        return new RestData<>(status, devMessage);
+    public static RestData<?> error(HttpStatus status, String message) {
+        return new RestData<>(status, null, message);
     }
 
     /**
-     * Errors rest data.
-     *
-     * @param status   the status
-     * @param type     the type
-     * @param messages the  messages
-     * @return the rest data
+     * Multiple errors
      */
-    public static RestData<?> errors(HttpStatus status, String type, List<String> messages) {
-        return new RestData<>(status, type, messages);
+    public static RestData<?> errors(HttpStatus status, String type, List<String> errors) {
+        return new RestData<>(status, type, errors);
     }
 }

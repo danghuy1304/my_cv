@@ -19,6 +19,6 @@ public class UserDTO {
     private String email;
     private int status;
     private Role role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
 }

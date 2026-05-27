@@ -1,21 +1,20 @@
 package com.project.mycv.application.mapper;
 
+import com.project.mycv.application.mapper.base.CrudMapper;
 import com.project.mycv.domain.model.Token;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Mapper
-public interface TokenMapper {
-    Token insert(Token token);
+public interface TokenMapper extends CrudMapper<Token, String> {
+    List<Token> findAll();
 
-    Optional<Token> findByToken(UUID refreshToken);
+    Optional<Token> findByToken(@Param("refreshToken") String refreshToken);
 
-    int update(UUID refreshToken, boolean isRevoked, boolean isExpired, LocalDateTime expiryDate);
+    boolean revokeToken(@Param("refreshToken") String refreshToken);
 
-    int delete(UUID refreshToken);
-
-    int revokeToken(UUID refreshToken);
+    boolean expireToken(@Param("refreshToken") String refreshToken);
 }

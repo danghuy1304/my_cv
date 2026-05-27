@@ -16,6 +16,6 @@ public class User {
     private String email;
     private int status;
     private int role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
 }

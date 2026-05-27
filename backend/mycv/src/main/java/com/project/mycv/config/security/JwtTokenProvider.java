@@ -1,7 +1,7 @@
 package com.project.mycv.config.security;
 
 import com.github.f4b6a3.ulid.UlidCreator;
-import com.project.mycv.application.mapper.TokenMapper;
+import com.project.mycv.application.service.token.TokenService;
 import com.project.mycv.domain.dto.UserDTO;
 import com.project.mycv.domain.model.Token;
 import io.jsonwebtoken.*;
@@ -20,7 +20,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -37,7 +36,7 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    private final TokenMapper tokenMapper;
+    private final TokenService tokenService;
 
     public String generateAccessToken(UserDTO userDto) {
         Map<String, Object> claims = Map.of(
@@ -54,18 +53,18 @@ public class JwtTokenProvider {
     }
 
     public String generateRefreshToken(UserDTO userDto) {
-        UUID tokenUUID = UlidCreator.getUlid().toUuid();
+        String refreshToken = UlidCreator.getUlid().toString();
         LocalDateTime currentDate = LocalDateTime.now();
         LocalDateTime expiredDate = currentDate.plusSeconds(expirationRefresh);
         Token token = new Token();
-        token.setRefreshToken(tokenUUID);
+        token.setRefreshToken(refreshToken);
         token.setCreatedAt(currentDate);
         token.setRevoked(false);
         token.setExpired(false);
         token.setExpiredAt(expiredDate);
         token.setUserId(userDto.getId());
-        tokenMapper.insert(token);
-        return tokenUUID.toString();
+        tokenService.insert(token);
+        return refreshToken;
     }
 
     private SecretKey getSecretKey() {

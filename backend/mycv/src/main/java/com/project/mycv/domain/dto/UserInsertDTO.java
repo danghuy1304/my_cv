@@ -11,5 +11,5 @@ public class UserInsertDTO {
     private String username;
     private String password;
     private String email;
-    private int roleId;
+    private Long roleId;
 }

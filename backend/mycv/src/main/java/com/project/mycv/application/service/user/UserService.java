@@ -11,5 +11,7 @@ public interface UserService extends ReadableService<UserDTO, Long> {
 
     UserLoginResponse login(UserLoginDTO userLoginDTO);
 
+    void logout(String refreshToken);
+
     String refreshToken(String refreshToken);
 }

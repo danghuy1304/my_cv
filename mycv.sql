@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS cv_interests CASCADE;
 DROP TABLE IF EXISTS cv_profiles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS roles CASCADE;
+DROP TABLE IF EXISTS tokens CASCADE;
+
 
 -- =========================================================================
 -- PHÂN HỆ 1: AUTHENTICATION & AUTHORIZATION (QUẢN LÝ ADMIN)
@@ -22,9 +24,9 @@ CREATE TABLE roles (
     description VARCHAR(255)
 );
 
-insert into (role_name, description) values
-("ADMIN", "Admin system"),
-("USER", "User system")
+INSERT INTO roles (role_name, description) VALUES
+('ADMIN', 'Admin system'),
+('USER', 'User system');
 
 -- 2. Bảng Người dùng (Users) - Dùng để đăng nhập vào hệ thống quản trị (Admin)
 CREATE TABLE users (
@@ -38,10 +40,13 @@ CREATE TABLE users (
     updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO users (username, password, email, status, role_id) VALUE
+('huydang2132', '$2a$10$24UAGoH9f1Atbv47TARsXOzL4UNuK8vGu0qEH28gJq.VH/olMNNba', 'huydang2132@gmail.com', 1, 2);
+
 CREATE TABLE tokens (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- Nối phẳng với User sở hữu token
-    refresh_token UUID NOT NULL UNIQUE, -- Chuỗi ULID
+    refresh_token CHAR(26) NOT NULL UNIQUE, -- Chuỗi ULID
     is_revoked BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE nếu token đã bị hủy (ví dụ: khi bấm Logout)
     is_expired BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE nếu token đã quá hạn sử dụng
     device_info VARCHAR(255), -- Lưu thông tin thiết bị (ví dụ: Chrome - Windows) để người dùng quản lý thiết bị đã đăng nhập

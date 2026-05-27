@@ -4,12 +4,15 @@ import com.project.mycv.application.service.base.CrudService;
 import com.project.mycv.domain.model.Token;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface TokenService extends CrudService<Token, UUID> {
-    Optional<Token> findByToken(UUID refreshToken);
+public interface TokenService extends CrudService<Token, String> {
+    Optional<Token> findByToken(String refreshToken);
 
-    boolean validateToken(UUID token);
+    Token getByToken(String refreshToken);
 
-    boolean revokeToken(UUID token);
+    boolean validateToken(String token);
+
+    boolean revokeToken(String token);
+
+    boolean expireToken(String token);
 }

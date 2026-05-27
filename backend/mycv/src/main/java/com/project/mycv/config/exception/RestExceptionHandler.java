@@ -57,6 +57,17 @@ public class RestExceptionHandler {
                 localizationUtils.getLocalizeMessage(e.getMessage()));
     }
 
+    @ExceptionHandler(MultipleConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<?> handleMultipleConflictException(MultipleConflictException e) {
+        LOGGER.error("MultipleConflictException: ", e);
+        List<String> errorMessages = e.getMessages()
+                .stream()
+                .map(localizationUtils::getLocalizeMessage)
+                .toList();
+        return RestResponse.errors(e.getStatus(), "MultipleConflictException", errorMessages);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleValidInputException(ConstraintViolationException e) {

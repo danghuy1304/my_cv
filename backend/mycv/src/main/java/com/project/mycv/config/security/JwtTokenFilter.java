@@ -4,6 +4,7 @@ import com.project.mycv.config.exception.AuthorizedException;
 import com.project.mycv.config.security.route.BypassRouteProperties;
 import com.project.mycv.constant.MessageKeys;
 import com.project.mycv.constant.SecurityConstant;
+import com.project.mycv.constant.type.HTypeTokenInvalid;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,9 +48,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
             if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(SecurityConstant.TOKEN_PREFIX)) {
-                request.setAttribute("ACCESS_TOKEN_MISSING", true);
-                filterChain.doFilter(request, response);
-                return;
+                throw new AuthorizedException(HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue(),
+                        MessageKeys.AUTHORIZATION_FAIL);
             }
             final String token = authHeader.substring(7);
 
@@ -71,10 +71,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             } catch (ExpiredJwtException ex) {
                 LOGGER.warn("Expired JWT token: {}", ex.getMessage());
-                throw new AuthorizedException(MessageKeys.AUTHORIZATION_FAIL);
+                throw new AuthorizedException(HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue(),
+                        MessageKeys.AUTHORIZATION_FAIL);
             } catch (Exception e) {
                 LOGGER.warn("Exception JWT filter: {}", e.getMessage());
-                throw new AuthorizedException(MessageKeys.AUTHORIZATION_FAIL);
+                throw new AuthorizedException(HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue(),
+                        MessageKeys.AUTHORIZATION_FAIL);
             }
         } catch (Exception e) {
             LOGGER.warn("JWT filter failed: {}", e.getMessage());
