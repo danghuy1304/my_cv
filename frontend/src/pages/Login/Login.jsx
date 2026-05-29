@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom';
 import useAuth from '@/hooks/useAuth';
 import Input from '@/components/Input/Input';
 import Button from '@/components/Button/Button';
+import useT from '@/hooks/useT';
 
 // ============================================================
 // LOGIN PAGE
 // ============================================================
 const Login = () => {
   const { login } = useAuth();
+  const t = useT();
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', password: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -19,22 +21,21 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Xóa lỗi của field khi người dùng bắt đầu gõ lại
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   // Validate form phía client
   const validate = () => {
     const newErrors = {};
-    if (!formData.email) {
-      newErrors.email = 'Vui lòng nhập email';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+    if (!formData.username) {
+      newErrors.username = t.login.usernameRequired;
+    } else if (formData.username.length < 3) {
+      newErrors.username = t.login.usernameMinLength;
     }
     if (!formData.password) {
-      newErrors.password = 'Vui lòng nhập mật khẩu';
+      newErrors.password = t.login.passwordRequired;
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = t.login.passwordMinLength;
     }
     return newErrors;
   };
@@ -44,7 +45,6 @@ const Login = () => {
     e.preventDefault();
     setServerError('');
 
-    // Kiểm tra validate trước khi gọi API
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -53,10 +53,9 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      await login(formData.email, formData.password);
-      // useAuth.login sẽ tự navigate về /dashboard khi thành công
+      await login(formData.username, formData.password);
     } catch (error) {
-      const message = error.response?.data?.message || 'Email hoặc mật khẩu không đúng';
+      const message = error.response?.data?.errors?.[0] || t.login.defaultError;
       setServerError(message);
     } finally {
       setIsLoading(false);
@@ -65,22 +64,22 @@ const Login = () => {
 
   return (
     <>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Đăng nhập</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">{t.login.title}</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <Input
-          label="Email"
-          name="email"
-          type="email"
-          placeholder="example@email.com"
-          value={formData.email}
+          label={t.login.username}
+          name="username"
+          type="text"
+          placeholder={t.login.usernamePlaceholder}
+          value={formData.username}
           onChange={handleChange}
-          error={errors.email}
+          error={errors.username}
           required
         />
 
         <Input
-          label="Mật khẩu"
+          label={t.login.password}
           name="password"
           type="password"
           placeholder="••••••••"
@@ -90,7 +89,6 @@ const Login = () => {
           required
         />
 
-        {/* Hiển thị lỗi từ server (sai email/mật khẩu) */}
         {serverError && (
           <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-md px-3 py-2">
             {serverError}
@@ -102,7 +100,7 @@ const Login = () => {
           isLoading={isLoading}
           className="w-full mt-2"
         >
-          Đăng nhập
+          {t.login.submit}
         </Button>
       </form>
     </>

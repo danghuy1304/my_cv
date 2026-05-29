@@ -16,7 +16,7 @@ public class Token {
     private boolean isRevoked;
     private boolean isExpired;
     private String deviceInfo;
-    private LocalDateTime expiredAt;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime expiredDate;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
 }

@@ -4,5 +4,13 @@ bypass:
       method: POST
     - path: /api/v1/users/register
       method: POST
+    - path: /api/v1/users/refresh-token
+      method: POST
     - path: /actuator/health
+      method: GET
+    - path: /api/v1/cv/**
+      method: GET
+    - path: /api/v1/cv/**
+      method: POST
+    - path: /uploads/avatars/**
       method: GET

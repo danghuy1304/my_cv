@@ -1,42 +1,23 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.project.mycv.application.mapper.TokenMapper">
-    <insert id="insert" parameterType="com.project.mycv.domain.model.Token">
-        INSERT INTO tokens (user_id, refresh_token, is_revoked, is_expired, expiry_date)
-        VALUES (#{userId}, #{refreshToken}, #{isRevoked}, #{isExpired}, #{expiredAt})
-    </insert>
+    <insert id="insert" parameterType="com.project.mycv.domain.model.Token"> INSERT INTO tokens
+        (user_id, refresh_token, is_revoked, is_expired, expiry_date) VALUES (#{userId},
+        #{refreshToken}, #{isRevoked}, #{isExpired}, #{expiredDate}) </insert>
 
-    <select id="findAll" resultType="com.project.mycv.domain.model.Token">
-        SELECT id, user_id, refresh_token, is_revoked, is_expired,
-        device_info, expiry_date, created_date, updated_date
-        FROM tokens
-    </select>
+    <select id="findAll" resultType="com.project.mycv.domain.model.Token"> SELECT id, user_id,
+        refresh_token, is_revoked, is_expired, device_info, expiry_date AS expiredDate,
+        created_date, updated_date FROM tokens </select>
 
-    <select id="findByToken" resultType="com.project.mycv.domain.model.Token">
-        SELECT id, user_id, refresh_token, is_revoked, is_expired,
-        device_info, expiry_date, created_date, updated_date
-        FROM tokens
-        WHERE refresh_token = #{refreshToken}
-    </select>
+    <select id="findByToken" resultType="com.project.mycv.domain.model.Token"> SELECT id, user_id,
+        refresh_token, is_revoked, is_expired, device_info, expiry_date AS expiredDate,
+        created_date, updated_date FROM tokens WHERE refresh_token = #{refreshToken} </select>
 
-    <update id="revokeToken">
-        UPDATE tokens
-        SET is_revoked = true,
-            updated_date = NOW()
-        WHERE refresh_token = #{refreshToken} AND is_revoked = false
-    </update>
+    <update id="revokeToken"> UPDATE tokens SET is_revoked = true, updated_date = NOW() WHERE
+        refresh_token = #{refreshToken} AND is_revoked = false </update>
 
-    <update id="expireToken">
-        UPDATE tokens
-        SET is_expired = true,
-            updated_date = NOW()
-        WHERE refresh_token = #{refreshToken} AND is_revoked = false
-    </update>
+    <update id="expireToken"> UPDATE tokens SET is_expired = true, updated_date = NOW() WHERE
+        refresh_token = #{refreshToken} AND is_revoked = false </update>
 
-    <delete id="delete">
-        DELETE FROM tokens
-        WHERE refresh_token = #{refreshToken}
-    </delete>
+    <delete id="delete"> DELETE FROM tokens WHERE refresh_token = #{refreshToken} </delete>
 </mapper>

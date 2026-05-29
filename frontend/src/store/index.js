@@ -1,20 +1,23 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import profileReducer from "./slices/profileSlice";
+import cvProfileReducer from "./slices/cvProfileSlice";
+import languageReducer from "./slices/languageSlice";
+import { setStore } from "./storeAccessor";
 
 // ============================================================
 // CẤU HÌNH REDUX STORE
-// Kết hợp tất cả các slice reducer lại thành một store duy nhất
 // ============================================================
 const store = configureStore({
   reducer: {
-    auth: authReducer, // Quản lý trạng thái xác thực
-    profile: profileReducer, // Quản lý thông tin profile người dùng
-    // Thêm các reducer mới vào đây khi dự án mở rộng
+    auth: authReducer, // Trạng thái xác thực (token, isAuthenticated)
+    profile: profileReducer, // Thông tin tài khoản user (/users/me)
+    cvProfile: cvProfileReducer, // Toàn bộ CV data (/admin/cv-profiles/*)
+    language: languageReducer, // Ngôn ngữ hiển thị (vi / en)
   },
-
-  // Redux DevTools Extension tự động hoạt động trong development mode
-  // Không cần cấu hình thêm
 });
+
+// Đăng ký store vào accessor để apiClient.js dùng (tránh circular dependency)
+setStore(store);
 
 export default store;

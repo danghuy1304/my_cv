@@ -1,30 +1,14 @@
 import apiClient from "./apiClient";
 
 // ============================================================
-// PROFILE SERVICE - Các API liên quan đến thông tin người dùng
+// PROFILE SERVICE — User account info: /api/v1/users/*
+// Lưu ý: đây là thông tin TÀI KHOẢN (username, email, role)
+//          KHÔNG phải CV data (fullName, phone...) — xem cvProfileService
 // ============================================================
 
 /**
- * Lấy thông tin profile của user hiện tại (dựa vào token)
+ * Lấy thông tin tài khoản user đang đăng nhập — GET /api/v1/users/me
+ * @returns {{ id, username, email, status, role, createdDate, updatedDate }}
  */
-export const getMyProfile = () => {
-  return apiClient.get("/profile/me");
-};
-
-/**
- * Cập nhật thông tin profile
- * @param {object} profileData - Dữ liệu cần cập nhật
- */
-export const updateProfile = (profileData) => {
-  return apiClient.put("/profile/me", profileData);
-};
-
-/**
- * Upload ảnh đại diện
- * @param {FormData} formData - FormData chứa file ảnh
- */
-export const uploadAvatar = (formData) => {
-  return apiClient.post("/profile/avatar", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-};
+export const getMyUserInfo = () =>
+  apiClient.get("/users/me").then((r) => r.data.data);

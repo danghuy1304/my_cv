@@ -26,20 +26,15 @@ const useAuth = () => {
 
   /**
    * Đăng nhập: gọi API, lưu token, cập nhật Redux store
-   * @param {string} email
+   * @param {string} username  — tên đăng nhập (KHÔNG phải email)
    * @param {string} password
    */
-  const login = async (email, password) => {
-    const response = await loginAPI(email, password);
-    const { accessToken, refreshToken, user: userData } = response.data;
-
-    // Cập nhật Redux store (authSlice sẽ tự lưu token vào LocalStorage)
-    dispatch(loginSuccess({ accessToken, refreshToken, user: userData }));
-
-    // Chuyển hướng về dashboard sau khi login thành công
+  const login = async (username, password) => {
+    // loginAPI đã unwrap response.data.data → { username, accessToken, refreshToken }
+    const data = await loginAPI(username, password);
+    dispatch(loginSuccess(data));
     navigate("/dashboard", { replace: true });
-
-    return response.data;
+    return data;
   };
 
   /**
@@ -47,12 +42,12 @@ const useAuth = () => {
    */
   const logout = async () => {
     try {
-      // Gọi API logout để invalidate token trên server
+      // Gọi API logout để invalidate token + xóa cookie refreshToken trên server
       await logoutAPI();
     } catch {
       // Bỏ qua lỗi API khi logout (vẫn xóa state phía client)
     } finally {
-      dispatch(logoutSuccess()); // Xóa auth state & token khỏi LocalStorage
+      dispatch(logoutSuccess()); // Xóa auth state (accessToken chỉ trong RAM)
       dispatch(clearProfile()); // Xóa profile data
       navigate("/login", { replace: true });
     }

@@ -1,7 +1,7 @@
 package com.project.mycv.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.project.mycv.domain.model.Role;
+import com.project.mycv.domain.dto.RoleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ public class UserDTO {
     private String password;
     private String email;
     private int status;
-    private Role role;
+    private RoleDTO role;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 }

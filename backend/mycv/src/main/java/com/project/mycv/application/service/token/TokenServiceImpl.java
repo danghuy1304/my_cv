@@ -38,7 +38,7 @@ public class TokenServiceImpl implements TokenService {
         Token refreshToken = getByToken(token);
         boolean valid = !refreshToken.isRevoked() && !refreshToken.isExpired();
         if (valid) {
-            boolean isExpired = refreshToken.getExpiredAt().isBefore(LocalDateTime.now());
+            boolean isExpired = refreshToken.getExpiredDate().isBefore(LocalDateTime.now());
             if (isExpired) {
                 LOGGER.info("Token {} is expired", token);
             }

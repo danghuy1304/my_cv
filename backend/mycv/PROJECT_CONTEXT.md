@@ -1,7 +1,17 @@
 # 🌐 TÀI LIỆU NGỮ CẢNH DỰ ÁN (PROJECT BACKEND)
 
 > Tài liệu này phản ánh trạng thái kiến trúc thực tế từ mã nguồn hiện tại.
-> Ngày tạo: 2026-05-28
+> 
+> **Ngày tạo:** 2026-05-28  
+> **Ngày cập nhật:** 2026-05-28
+>
+> **Phương pháp phân tích:**
+> - ✅ Quét toàn bộ source code (Java classes, interfaces, configs)
+> - ✅ Phân tích database schema (`mycv.sql`)
+> - ✅ Kiểm tra configuration files (`application.yaml`, `bypass-routes.yml`)
+> - ✅ Review i18n message files (EN, VI)
+> - ✅ Xác minh dependencies (`pom.xml`)
+> - ✅ Đánh giá mapper XML (MyBatis)
 
 ---
 
@@ -414,7 +424,12 @@ Login → JwtTokenProvider.generateRefreshToken()
 
 ### 9. Base Service/Mapper interfaces
 - **Mục đích:** Generic CRUD + Read contracts
-- **Hierarchy:** `ReadableMapper<E,T>`, `CrudMapper<E,T>`, `ReadableService<E,T>`, `CrudService<E,T>`, `BatchOperation<E,T>`
+- **Hierarchy:** `ReadableMapper<E,T>`, `CrudMapper<I,U,T>`, `ReadableService<E,T>`, `CrudService<E,T>`, `BatchOperation<E,T>`
+- **`CrudMapper<I, U, T>` contract:**
+  - `insert(I entity)` — I = insert DTO type
+  - `update(U entity, T id)` — entity **first**, id **second**
+  - `delete(T id)`
+- **Ghi chú:** Mapper cần 2 tham số trong `update` phải override với `@Param` để MyBatis XML binding hoạt động đúng
 - **Nguồn:** `application/mapper/base/`, `application/service/base/`
 
 ---
@@ -482,6 +497,8 @@ Login → JwtTokenProvider.generateRefreshToken()
 
 ## Quan hệ giữa các bảng
 
+### Đã triển khai (Authentication & Authorization module):
+
 ```
 roles (1) ──────── (N) users
                         │
@@ -490,6 +507,38 @@ users (1) ──────── (N) tokens
 
 - `users.role_id` → `roles.id` (ManyToOne)
 - `tokens.user_id` → `users.id` (ManyToOne)
+
+### Đã có schema SQL và đã triển khai (CV Management module — Admin):
+
+```
+users (1) ──────── (N) cv_profiles
+                            │
+                            ├─────── (N) cv_skills
+                            ├─────── (N) cv_educations
+                            ├─────── (N) cv_projects
+                            │            └─────── (N) cv_project_tasks
+                            ├─────── (N) cv_activities
+                            ├─────── (N) cv_interests
+                            ├─────── (N) cv_certifications
+                            └─────── (N) access_logs
+```
+
+**Mapper:** `CvProfileMapper` + `CvProfileMapper.xml`
+
+**Mô tả:**
+- `cv_profiles`: Hồ sơ CV (status, is_public, view_count, soft delete). Truy cập public qua `/cv/{username}`
+- `cv_skills`: Kỹ năng chuyên môn (skill_category, skill_level, display_order)
+- `cv_educations`: Học vấn (school, major, degree, GPA)
+- `cv_projects`: Dự án (tech stack, team size, role, demo URL)
+- `cv_project_tasks`: Task chi tiết trong dự án
+- `cv_activities`: Hoạt động ngoại khóa
+- `cv_interests`: Sở thích cá nhân
+- `cv_certifications`: Chứng chỉ chuyên môn
+- `access_logs`: Tracking lượt xem CV (IP, device, browser, location)
+
+**Nguồn phân tích:**
+- file: `mycv.sql` (lines 65-205)
+- Ghi chú: Schema đã được thiết kế đầy đủ, bao gồm indexes và foreign key constraints
 
 ---
 
@@ -595,7 +644,10 @@ logging:
 |------|--------|
 | `/api/v1/users/login` | POST |
 | `/api/v1/users/register` | POST |
+| `/api/v1/users/refresh-token` | POST |
 | `/actuator/health` | GET |
+| `/api/v1/cv/**` | GET |
+| `/api/v1/cv/**` | POST |
 
 **Nguồn:** `resources/config/security/bypass-routes.yml`
 
@@ -605,6 +657,38 @@ logging:
 - Files: `messages_en.properties`, `messages_vi.properties`
 - Locale resolver: `AcceptHeaderLocaleResolver` (header `Accept-Language`)
 - Default locale: `Locale.ROOT`
+
+### Message Key Convention
+
+| Category | Prefix | Ví dụ |
+|----------|--------|-------|
+| Business logic error | `logic.` | `logic.user_not_found`, `logic.username_already_exists` |
+| Input validation | `input.` | `input.username.not_null`, `input.password.not_null` |
+| General error | `error.` | `error.internal.server`, `error.access.denied`, `error.authorization.failed` |
+
+### Sử dụng trong code
+
+```java
+// Throw exception với message key
+throw new NotFoundException(MessageKeys.USER_NOT_FOUND);
+
+// LocalizationUtils sẽ tự động resolve theo Accept-Language header
+String message = localizationUtils.getLocalizeMessage(MessageKeys.USER_NOT_FOUND);
+```
+
+### Ví dụ message theo locale
+
+| Key | EN | VI |
+|-----|----|----|
+| `logic.user_not_found` | User not found | Người dùng không tồn tại |
+| `logic.username_already_exists` | Username already exists | Tên đăng nhập đã tồn tại |
+| `error.authorization.failed` | Authorization failed... | Phiên đăng nhập đã hết hạn... |
+
+**Nguồn phân tích:**
+- file: `src/main/resources/i18n/messages_en.properties`
+- file: `src/main/resources/i18n/messages_vi.properties`
+- file: `constant/MessageKeys.java`
+- file: `config/language/LocalizationUtils.java`
 
 ---
 
@@ -623,7 +707,96 @@ logging:
 
 ---
 
-# 7. 📝 TRẠNG THÁI HỆ THỐNG HIỆN TẠI
+# 7. 🌐 API ENDPOINTS
+
+## Đã triển khai
+
+### UserController (`/api/v1/users`)
+
+| Method | Endpoint | Mô tả | Auth Required | Service Method |
+|--------|----------|-------|---------------|----------------|
+| POST | `/api/v1/users/register` | Đăng ký tài khoản mới | ❌ (bypass) | `UserService.register()` |
+| POST | `/api/v1/users/login` | Đăng nhập, set cookie refreshToken + isLoggedIn | ❌ (bypass) | `UserService.login()` |
+| POST | `/api/v1/users/refresh-token` | Lấy access token mới — đọc refreshToken từ **cookie** | ❌ (bypass) | `UserService.refreshToken()` |
+| POST | `/api/v1/users/logout` | Revoke token DB + xóa cả 2 cookie — đọc refreshToken từ **cookie** | ✅ JWT | `UserService.logout()` |
+| GET | `/api/v1/users/me` | Lấy thông tin user đang đăng nhập | ✅ JWT | `CustomUserDetails` từ `Authentication` |
+
+**Request Body (UserRegisterDTO):**
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string"
+}
+```
+
+**Response:** `200 OK` hoặc `409 Conflict` với `errors[]` nếu username/email đã tồn tại
+
+**Nguồn phân tích:**
+- file: `web/controller/UserController.java`
+- file: `application/service/user/UserService.java`
+
+---
+
+## Chưa triển khai (có service nhưng chưa có controller endpoint)
+
+### User Authentication & Token Management
+
+| Method | Path dự kiến | Mô tả | Service Method có sẵn |
+|--------|--------------|-------|----------------------|
+| POST | `/api/v1/users/login` | Đăng nhập | ✅ `UserService.login()` |
+| POST | `/api/v1/users/logout` | Đăng xuất (revoke refresh token) | ✅ `UserService.logout()` |
+| POST | `/api/v1/users/refresh-token` | Làm mới access token | ✅ `UserService.refreshToken()` |
+| GET | `/api/v1/users` | Lấy danh sách user (paginated) | ✅ `UserService.getAll()` |
+| GET | `/api/v1/users/{id}` | Lấy thông tin user theo ID | ✅ `UserService.getById()` |
+
+### Role Management
+
+| Method | Path dự kiến | Mô tả | Service có sẵn |
+|--------|--------------|-------|---------------|
+| GET | `/api/v1/roles` | Lấy danh sách role | ✅ `RoleService` |
+| GET | `/api/v1/roles/{id}` | Lấy role theo ID | ✅ `RoleService` |
+
+### CV Management System — ADMIN APIs ✅ Đã triển khai
+
+| Method | Endpoint | Mô tả | Auth |
+|--------|----------|-------|------|
+| GET | `/api/v1/cv/{username}` | CV chi tiết public (không cần auth, tăng view_count) | ❌ (public) |
+| POST | `/api/v1/cv/{username}/log` | Ghi access log (IP, UA, browser, OS, device, referer) | ❌ (public) |
+| GET | `/api/v1/admin/cv-profiles` | Danh sách CV (phân trang) | `ROLE_ADMIN` |
+| POST | `/api/v1/admin/cv-profiles` | Tạo CV mới (DRAFT) | `ROLE_ADMIN` |
+| GET | `/api/v1/admin/cv-profiles/{id}` | Detail CV + nested collections | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/{id}` | Cập nhật thông tin cá nhân / social / summary | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/{id}/status` | Cập nhật status + is_public | `ROLE_ADMIN` |
+| DELETE | `/api/v1/admin/cv-profiles/{id}` | Xóa cứng (DB CASCADE) | `ROLE_ADMIN` |
+| GET | `/api/v1/admin/cv-profiles/my-detail` | Detail CV của admin đang đăng nhập | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles` | Cập nhật CV của chính mình | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/status` | Cập nhật status CV của chính mình | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/skills` | Bulk replace skills | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/educations` | Bulk replace educations | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/projects` | Bulk replace projects + tasks | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/interests` | Bulk replace interests | `ROLE_ADMIN` |
+| PUT | `/api/v1/admin/cv-profiles/certifications` | Bulk replace certifications | `ROLE_ADMIN` |
+
+**Request DTOs:**
+- `CvProfileCreateDTO` — `fullName` (NotBlank), `title`
+- `CvProfileUpdateDTO` — fullName, title, birthday, phone, email, githubUrl, linkedinUrl, websiteUrl, address, summaryShort, summaryLong, avatarUrl
+- `CvStatusUpdateDTO` — status (`DRAFT`/`PUBLISHED`/`ARCHIVED`), isPublic
+
+**Response DTOs:**
+- `CvProfileDTO` — list item (basic fields)
+- `CvProfileDetailDTO` — full detail with collections: skills, educations, projects (→ tasks), interests, certifications
+
+**Nguồn phân tích:**
+- file: `web/controller/admin/AdminCvProfileController.java`
+- file: `application/service/cv/CvProfileService.java`
+- file: `application/service/cv/CvProfileServiceImpl.java`
+- file: `application/mapper/CvProfileMapper.java`
+- file: `resources/mappers/CvProfileMapper.xml`
+
+---
+
+# 8. 📝 TRẠNG THÁI HỆ THỐNG HIỆN TẠI
 
 **Ngày tạo tài liệu:** 2026-05-28
 
@@ -647,13 +820,22 @@ logging:
 - [x] CRUD base interfaces (generic)
 - [x] Cookie utility (HttpOnly, Secure auto-detect)
 - [x] Custom date validator (`@HVDate`)
+- [x] ADMIN CV Profile APIs (`/api/v1/admin/cv-profiles`) — CRUD + status management
+- [x] ADMIN Self-CV APIs (`/api/v1/admin/cv-profiles/my-detail`, PUT without id)
+- [x] ADMIN Bulk Update child sections (skills, educations, projects+tasks, interests, certifications)
+- [x] PUBLIC CV API (`/api/v1/cv/{username}`) — unauthenticated, view_count increment
+- [x] PUBLIC Access Log API (`/api/v1/cv/{username}/log`) — UA parsing, access_logs insert
+- [x] MyBatis nested ResultMap (cv_profiles → skills, educations, projects→tasks, interests, certifications)
+- [x] `HTypeCvStatus` enum (DRAFT / PUBLISHED / ARCHIVED)
+- [x] `UserAgentParser` — Browser, OS, Device-type detection + IP extraction
+- [x] `CvChildMapper` — bulk delete/insert for all child entities (`@Transactional`)
 - [x] Role-based authority (từ DB)
 
 ## ❌ Chưa triển khai
 
-- [ ] Logout endpoint trong `UserController` (service có nhưng controller chưa expose)
-- [ ] Refresh token endpoint trong `UserController`
-- [ ] `@PreAuthorize` / `@Secured` trên các API cần phân quyền
+- [ ] ~~Logout endpoint trong `UserController`~~ ✅ Done
+- [ ] ADMIN APIs cho CV sub-resources (cv-skills, cv-educations riêng lẻ) — đã có bulk update
+- [x] PUBLIC CV endpoints (truy cập bằng `/api/v1/cv/{username}`, không cần auth) ✅
 - [ ] Email service
 - [ ] File upload (config multipart đã có nhưng chưa có controller)
 - [ ] Redis caching
@@ -666,17 +848,49 @@ logging:
 
 ## ⚠️ Technical Debt & Điểm cần chú ý
 
-1. **BUG nghiêm trọng:** `application.yaml` dùng `${DB_USERNAME:password}` cho password thay vì `${DB_PASSWORD:password}` → sẽ fail khi deploy với env vars thực tế
-2. `TokenServiceImpl.insert()` check trùng refresh token trước khi insert — nhưng ULID là unique globally, có thể bỏ check này
-3. `CookieUtility` đã implement đầy đủ nhưng chưa được dùng trong controller nào — refresh token đang trả về trong JSON body thay vì HttpOnly cookie
-4. `UserDTO` dùng `Role` model thay vì `RoleDTO` — inconsistency giữa model và DTO layer
-5. `TokenDTO` đã có nhưng không được dùng — mapper trả về `Token` model trực tiếp
-6. `TokenServiceImpl.validateToken()` không tự động expire token khi phát hiện hết hạn — chỉ log
-7. `extractUserId()` trong `JwtTokenProvider` trả về `String` nhưng claim `id` thực tế là `Long` — có thể gây lỗi runtime
+### 🔴 BUG nghiêm trọng (cần fix ngay)
+
+1. **`application.yaml` line 13:** Dùng `${DB_USERNAME:password}` thay vì `${DB_PASSWORD:password}`  
+   → Sẽ fail khi deploy với environment variables thực tế
+   
+2. **`JwtTokenProvider.java` line 79:** Dùng `parseEncryptedClaims()` thay vì `parseSignedClaims()`  
+   → JWT bị coi như JWE (encrypted) trong khi thực tế là JWS (signed only)  
+   → Method này sẽ fail khi validate access token
+
+3. **UserController thiếu các endpoint chính:**  
+   - `POST /api/v1/users/login` - service đã có nhưng chưa expose
+   - `POST /api/v1/users/logout` - service đã có nhưng chưa expose
+   - `POST /api/v1/users/refresh-token` - service đã có nhưng chưa expose
+
+### 🟡 Code quality & Architecture
+
+4. `extractUserId()` trong `JwtTokenProvider` trả về `String` nhưng claim `id` thực tế là `Long`  
+   → Có thể gây lỗi runtime khi cast
+
+5. `UserDTO` dùng `Role` model thay vì `RoleDTO`  
+   → Inconsistency giữa model và DTO layer, vi phạm separation of concerns
+
+6. `TokenDTO` đã có nhưng không được dùng  
+   → Mapper trả về `Token` model trực tiếp, should use DTO pattern
+
+7. `CookieUtility` đã implement đầy đủ nhưng chưa được dùng  
+   → Refresh token đang trả về trong JSON body thay vì HttpOnly cookie (less secure)
+
+8. `TokenServiceImpl.validateToken()` không tự động expire token khi phát hiện hết hạn  
+   → Chỉ log, nên tự động set `is_expired=true` trong DB
+
+9. `TokenServiceImpl.insert()` check trùng refresh token trước khi insert  
+   → ULID là unique globally, check này redundant
+
+### 🟢 Empty placeholder files
+
+10. `constant/type/HTypeCvStatus.java` - file tạo sẵn nhưng empty
+11. `config/scheduler/CvStatisticsScheduler.java` - file tạo sẵn nhưng empty
+12. `helper/` package - folder tạo sẵn nhưng không có file nào
 
 ---
 
-# 8. 📌 UPDATE LOG
+# 9. 📌 UPDATE LOG
 
 [Không đủ dữ liệu — không tìm thấy git log, CHANGELOG, hay migration files trong workspace]
 

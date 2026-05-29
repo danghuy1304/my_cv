@@ -40,8 +40,8 @@ CREATE TABLE users (
     updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users (username, password, email, status, role_id) VALUE
-('huydang2132', '$2a$10$24UAGoH9f1Atbv47TARsXOzL4UNuK8vGu0qEH28gJq.VH/olMNNba', 'huydang2132@gmail.com', 1, 2);
+INSERT INTO users (username, password, email, status, role_id) VALUES
+('huydang2132', '$2a$10$24UAGoH9f1Atbv47TARsXOzL4UNuK8vGu0qEH28gJq.VH/olMNNba', 'huydang2132@gmail.com', 1, 1);
 
 CREATE TABLE tokens (
     id BIGSERIAL PRIMARY KEY,
@@ -72,13 +72,27 @@ CREATE TABLE cv_profiles (
     phone VARCHAR(20), -- Ví dụ: 0369555134
     email VARCHAR(100), -- Ví dụ: huydang2132@gmail.com
     github_url VARCHAR(255), -- Ví dụ: https://github.com/danghuy1304
+    linkedin_url VARCHAR(255), -- Ví dụ: https://www.linkedin.com/in/username
+    website_url VARCHAR(255), -- Portfolio hoặc blog cá nhân
     address VARCHAR(255), -- Ví dụ: Từ Liêm, Hà Nội
     summary_short TEXT, -- Mục tiêu ngắn hạn (1 năm tới)
     summary_long TEXT, -- Mục tiêu dài hạn (3 - 5 năm tiếp)
     avatar_url VARCHAR(255),
+
+    -- Public CV fields
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT', -- 'DRAFT', 'PUBLISHED', 'ARCHIVED'
+    is_public BOOLEAN NOT NULL DEFAULT FALSE, -- Cho phép hiển thị public
+    published_at TIMESTAMP, -- Thời điểm publish
+    view_count BIGINT NOT NULL DEFAULT 0, -- Số lượt xem tổng (denormalized)
+    deleted_at TIMESTAMP, -- Soft delete
+
     created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_cv_profiles_user_id ON cv_profiles(user_id);
+CREATE INDEX idx_cv_profiles_status ON cv_profiles(status);
+CREATE INDEX idx_cv_profiles_is_public ON cv_profiles(is_public);
 
 -- 4. Bảng Kỹ năng chuyên môn (Skills)
 CREATE TABLE cv_skills (
@@ -86,8 +100,12 @@ CREATE TABLE cv_skills (
     cv_id BIGINT REFERENCES cv_profiles(id) ON DELETE CASCADE,
     skill_category VARCHAR(50) NOT NULL, -- Phân loại: 'Front-end', 'Back-end', 'Database', 'DevOps'
     skill_name VARCHAR(100) NOT NULL, -- Tên công nghệ: 'Spring Boot', 'ReactJS', 'PostgreSQL', 'RabbitMQ'
+    skill_level VARCHAR(20), -- 'Beginner', 'Intermediate', 'Advanced', 'Expert'
+    display_order INT DEFAULT 0, -- Thứ tự sắp xếp hiển thị trong CV
     created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_cv_skills_cv_id ON cv_skills(cv_id);
 
 -- 5. Bảng Học vấn (Education)
 CREATE TABLE cv_educations (
@@ -95,10 +113,15 @@ CREATE TABLE cv_educations (
     cv_id BIGINT REFERENCES cv_profiles(id) ON DELETE CASCADE,
     school_name VARCHAR(150) NOT NULL, -- Ví dụ: Đại học Công nghiệp Hà Nội
     major VARCHAR(150) NOT NULL, -- Ví dụ: Kỹ thuật phần mềm
+    degree VARCHAR(100), -- Ví dụ: 'Bachelor', 'Master', 'PhD', 'Associate'
     gpa VARCHAR(10), -- Ví dụ: 3.16
+    description TEXT, -- Mô tả thành tích, hoạt động nổi bật trong quá trình học
     start_date DATE, -- Tháng/năm bắt đầu học (ví dụ: 2020-10-01)
-    end_date DATE -- Tháng/năm tốt nghiệp (ví dụ: 2024-06-01)
+    end_date DATE, -- Tháng/năm tốt nghiệp (ví dụ: 2024-06-01)
+    created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_cv_educations_cv_id ON cv_educations(cv_id);
 
 -- 6. Bảng Dự án thực tế (Projects)
 CREATE TABLE cv_projects (
@@ -174,6 +197,7 @@ CREATE TABLE access_logs (
     device_type VARCHAR(50), -- Loại thiết bị tự phân tích: 'Mobile', 'Tablet', 'Desktop', 'Bot'
     browser VARCHAR(50), -- Trình duyệt: 'Chrome', 'Safari', 'Firefox', 'Edge'
     operating_system VARCHAR(50), -- Hệ điều hành: 'Windows', 'MacOS', 'iOS', 'Android'
+    referer TEXT, -- URL trang nguồn dẫn đến xem CV
     location_country VARCHAR(100), -- Quốc gia của người xem (Parse tự động qua IP)
     location_city VARCHAR(100), -- Thành phố của người xem (Parse tự động qua IP)
     accessed_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.mycv.application.mapper.PublicCvMapper">
+
+    <!--
+        Reuse the full nested ResultMap defined in CvProfileMapper to avoid duplication.
+        MyBatis resolves cross-mapper resultMap references via the fully-qualified id.
+    -->
+
+    <!-- ===== FIND PUBLIC DETAIL BY USERNAME ===== -->
+    <!--
+        PUBLISHED + is_public = true + not deleted.
+        Subquery pins to the latest qualifying CV so the outer LEFT JOINs
+        operate on exactly one cv_profiles row, preventing Cartesian blowup.
+    -->
+    <select id="findPublicDetailByUsername"
+        resultMap="com.project.mycv.application.mapper.CvProfileMapper.CvProfileDetailResultMap">
+        SELECT p.id AS cv_id, p.user_id, p.full_name, p.title, p.birthday, p.phone, p.email,
+        p.github_url, p.linkedin_url, p.website_url, p.address, p.summary_short, p.summary_long,
+        p.avatar_url, p.status AS cv_status, p.is_public, p.view_count, p.published_at,
+        p.deleted_at, p.created_date AS cv_created_date, p.updated_date AS cv_updated_date, s.id AS
+        skill_id, s.skill_category, s.skill_name, s.skill_level, s.display_order AS
+        skill_display_order, s.created_date AS skill_created_date, e.id AS edu_id, e.school_name,
+        e.major, e.degree, e.gpa, e.description AS edu_description, e.start_date AS edu_start_date,
+        e.end_date AS edu_end_date, e.created_date AS edu_created_date, pr.id AS project_id,
+        pr.project_name, pr.company_name, pr.team_size, pr.role_in_project, pr.tech_frontend,
+        pr.tech_backend, pr.tech_devops_tools, pr.url_demo, pr.start_date AS project_start_date,
+        pr.end_date AS project_end_date, pr.created_date AS project_created_date, pt.id AS task_id,
+        pt.task_description, i.id AS interest_id, i.interest_name, i.display_order AS
+        interest_display_order, i.created_date AS interest_created_date, c.id AS cert_id,
+        c.cert_name, c.issuing_organization, c.issue_date, c.expiration_date, c.credential_id,
+        c.credential_url, c.created_date AS cert_created_date, act.id AS activity_id,
+        act.organization AS activity_organization, act.role AS activity_role, act.description AS
+        activity_description, act.start_date AS activity_start_date, act.end_date AS
+        activity_end_date FROM cv_profiles p LEFT JOIN cv_skills s ON s.cv_id = p.id LEFT JOIN
+        cv_educations e ON e.cv_id = p.id LEFT JOIN cv_projects pr ON pr.cv_id = p.id LEFT JOIN
+        cv_project_tasks pt ON pt.project_id = pr.id LEFT JOIN cv_interests i ON i.cv_id = p.id LEFT
+        JOIN cv_certifications c ON c.cv_id = p.id LEFT JOIN cv_activities act ON act.cv_id = p.id
+        WHERE p.id = ( SELECT p2.id FROM cv_profiles p2 JOIN users u ON u.id = p2.user_id WHERE
+        u.username = #{username} AND p2.status = 'PUBLISHED' AND p2.is_public = TRUE AND
+        p2.deleted_at IS NULL ORDER BY p2.created_date DESC LIMIT 1 ) </select>
+
+    <!-- ===== FIND CV ID BY USERNAME (lightweight — for access-log endpoint) ===== -->
+    <select id="findCvIdByUsername" resultType="long"> SELECT p.id FROM cv_profiles p JOIN users u
+        ON u.id = p.user_id WHERE u.username = #{username} AND p.deleted_at IS NULL ORDER BY
+        p.created_date DESC LIMIT 1 </select>
+
+    <!-- ===== INCREMENT VIEW COUNT (atomic) ===== -->
+    <update id="incrementViewCount"> UPDATE cv_profiles SET view_count = view_count + 1 WHERE id =
+        #{cvId} </update>
+
+</mapper>

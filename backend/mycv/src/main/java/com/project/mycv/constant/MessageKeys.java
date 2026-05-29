@@ -13,8 +13,17 @@ public class MessageKeys {
     public static final String TOKEN_CREATE_FAILED = "logic.token_create_failed";
     // Logic role
     public static final String ROLE_NOT_FOUND = "logic.role_not_found";
+    // Logic user - change password
+    public static final String OLD_PASSWORD_WRONG = "logic.old_password_wrong";
+    // Logic CV profile
+    public static final String CV_PROFILE_NOT_FOUND = "logic.cv_profile_not_found";
+    // Logic avatar
+    public static final String AVATAR_EMPTY        = "logic.avatar.empty";
+    public static final String AVATAR_TOO_LARGE    = "logic.avatar.too_large";
+    public static final String AVATAR_INVALID_TYPE = "logic.avatar.invalid_type";
     // Validator
     public static final String USERNAME_NOT_NULL = "input.username.not_null";
+    public static final String CV_FULL_NAME_NOT_BLANK = "input.cv.full_name.not_blank";
     public static final String PASSWORD_NOT_NULL = "input.password.not_null";
     // Error
     public static final String INTERNAL_SERVER_ERROR = "error.internal.server";

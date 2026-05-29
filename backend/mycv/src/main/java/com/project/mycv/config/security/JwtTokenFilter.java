@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,6 +29,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
     @Value("${api.version1}")
     private String API_VERSION1;
@@ -48,8 +50,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
             if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(SecurityConstant.TOKEN_PREFIX)) {
-                throw new AuthorizedException(HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue(),
-                        MessageKeys.AUTHORIZATION_FAIL);
+                sendUnauthorized(response, HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue());
+                return;
             }
             final String token = authHeader.substring(7);
 
@@ -70,24 +72,34 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 }
                 filterChain.doFilter(request, response);
             } catch (ExpiredJwtException ex) {
-                LOGGER.warn("Expired JWT token: {}", ex.getMessage());
-                throw new AuthorizedException(HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue(),
-                        MessageKeys.AUTHORIZATION_FAIL);
+                LOGGER.error("Expired JWT token: {}", ex.getMessage());
+                sendUnauthorized(response, HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue());
             } catch (Exception e) {
-                LOGGER.warn("Exception JWT filter: {}", e.getMessage());
-                throw new AuthorizedException(HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue(),
-                        MessageKeys.AUTHORIZATION_FAIL);
+                LOGGER.error("Exception JWT filter: {}", e.getMessage());
+                sendUnauthorized(response, HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue());
             }
         } catch (Exception e) {
-            LOGGER.warn("JWT filter failed: {}", e.getMessage());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            LOGGER.error("JWT filter failed: {}", e.getMessage());
+            sendUnauthorized(response, HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue());
         }
+    }
+
+    /**
+     * Write a 401 JSON response directly — filters bypass @RestControllerAdvice,
+     * so we must write the response ourselves to ensure consistent format.
+     */
+    private void sendUnauthorized(HttpServletResponse response, String type) throws IOException {
+        if (response.isCommitted()) return;
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"type\":\"" + type + "\",\"errors\":[\"" + type + "\"]}");
     }
 
     private boolean isByPassToken(HttpServletRequest request) {
         String path = request.getServletPath();
         String method = request.getMethod();
         return bypassRouteProperties.getRoutes().stream()
-                .anyMatch(r -> path.equals(r.getPath()) && method.equalsIgnoreCase(r.getMethod()));
+                .anyMatch(r -> PATH_MATCHER.match(r.getPath(), path)
+                        && method.equalsIgnoreCase(r.getMethod()));
     }
 }

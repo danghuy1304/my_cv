@@ -1,41 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getMyProfile, updateProfile } from "@/services/profileService";
+import { getMyUserInfo } from "@/services/profileService";
 
 // ============================================================
-// ASYNC THUNKS - Các action bất đồng bộ gọi API
+// ASYNC THUNKS — Lấy thông tin tài khoản user (/users/me)
+// CV data (ảnh, kỹ năng...) nằm trong cvProfileSlice
 // ============================================================
 
-/**
- * Fetch thông tin profile từ API
- * createAsyncThunk tự động tạo 3 action: pending, fulfilled, rejected
- */
 export const fetchProfile = createAsyncThunk(
-  "profile/fetchProfile", // Tên action (dùng cho Redux DevTools)
+  "profile/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await getMyProfile();
-      return response.data; // Trả về data để lưu vào state
-    } catch (error) {
-      // rejectWithValue giúp truyền thông tin lỗi vào rejected case
-      return rejectWithValue(
-        error.response?.data?.message || "Lấy thông tin thất bại",
-      );
-    }
-  },
-);
-
-/**
- * Cập nhật thông tin profile qua API
- */
-export const saveProfile = createAsyncThunk(
-  "profile/saveProfile",
-  async (profileData, { rejectWithValue }) => {
-    try {
-      const response = await updateProfile(profileData);
-      return response.data;
+      return await getMyUserInfo(); // đã unwrap response.data.data
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Cập nhật thất bại",
+        error.response?.data?.errors?.[0] || "Lấy thông tin thất bại",
       );
     }
   },
@@ -77,9 +55,8 @@ const profileSlice = createSlice({
     },
   },
 
-  // --- EXTRA REDUCERS: Xử lý trạng thái của Async Thunks ---
+  // --- EXTRA REDUCERS ---
   extraReducers: (builder) => {
-    // === Xử lý fetchProfile ===
     builder
       .addCase(fetchProfile.pending, (state) => {
         state.isLoading = true;
@@ -87,24 +64,9 @@ const profileSlice = createSlice({
       })
       .addCase(fetchProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.data = action.payload; // Lưu data trả về vào state
+        state.data = action.payload;
       })
       .addCase(fetchProfile.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload; // Lưu thông báo lỗi vào state
-      });
-
-    // === Xử lý saveProfile ===
-    builder
-      .addCase(saveProfile.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(saveProfile.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.data = action.payload; // Cập nhật lại data sau khi save thành công
-      })
-      .addCase(saveProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

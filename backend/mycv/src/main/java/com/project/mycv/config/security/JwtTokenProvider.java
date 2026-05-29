@@ -58,17 +58,17 @@ public class JwtTokenProvider {
         LocalDateTime expiredDate = currentDate.plusSeconds(expirationRefresh);
         Token token = new Token();
         token.setRefreshToken(refreshToken);
-        token.setCreatedAt(currentDate);
+        token.setCreatedDate(currentDate);
         token.setRevoked(false);
         token.setExpired(false);
-        token.setExpiredAt(expiredDate);
+        token.setExpiredDate(expiredDate);
         token.setUserId(userDto.getId());
         tokenService.insert(token);
         return refreshToken;
     }
 
     private SecretKey getSecretKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -76,7 +76,7 @@ public class JwtTokenProvider {
         return Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()
-                .parseEncryptedClaims(token)
+                .parseSignedClaims(token)
                 .getPayload();
     }
 

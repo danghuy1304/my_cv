@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.mycv.application.mapper.AccessLogMapper">
+
+    <insert id="insert" parameterType="com.project.mycv.domain.dto.cv.AccessLogInsertDTO"> INSERT
+        INTO access_logs (cv_id, ip_address, user_agent, browser, operating_system, device_type,
+        referer, location_country, location_city) VALUES (#{cvId}, #{ipAddress}, #{userAgent},
+        #{browser}, #{operatingSystem}, #{deviceType}, #{referer}, #{locationCountry},
+        #{locationCity}) </insert>
+
+    <resultMap id="AccessLogResultMap" type="com.project.mycv.domain.dto.cv.AccessLogDTO">
+        <id property="id" column="id" />
+        <result property="ipAddress" column="ip_address" />
+        <result property="userAgent" column="user_agent" />
+        <result property="browser" column="browser" />
+        <result property="operatingSystem" column="operating_system" />
+        <result property="deviceType" column="device_type" />
+        <result property="referer" column="referer" />
+        <result property="locationCountry" column="location_country" />
+        <result property="locationCity" column="location_city" />
+        <result property="accessedTime" column="accessed_time" />
+    </resultMap>
+
+    <select id="findByCvId" resultMap="AccessLogResultMap"> SELECT id, ip_address, user_agent,
+        browser, operating_system, device_type, referer, location_country, location_city,
+        accessed_time FROM access_logs WHERE cv_id = #{cvId} ORDER BY accessed_time DESC LIMIT
+        #{limit} </select>
+
+    <select id="countByCvId" resultType="long"> SELECT COUNT(*) FROM access_logs WHERE cv_id =
+        #{cvId} </select>
+
+    <select id="countByDeviceType" resultType="map"> SELECT COALESCE(device_type, 'Unknown') AS
+        label, COUNT(*) AS count FROM access_logs WHERE cv_id = #{cvId} GROUP BY device_type </select>
+
+    <select id="countByBrowser" resultType="map"> SELECT COALESCE(browser, 'Unknown') AS label,
+        COUNT(*) AS count FROM access_logs WHERE cv_id = #{cvId} GROUP BY browser </select>
+
+</mapper>

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Mapper
-public interface TokenMapper extends CrudMapper<Token, String> {
+public interface TokenMapper extends CrudMapper<Token, Token, String> {
     List<Token> findAll();
 
     Optional<Token> findByToken(@Param("refreshToken") String refreshToken);

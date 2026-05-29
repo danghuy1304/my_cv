@@ -12,7 +12,7 @@ public class LanguageResolverConfig {
     @Bean
     public LocaleResolver localeResolver() {
         AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
-        resolver.setDefaultLocale(Locale.ROOT);
+        resolver.setDefaultLocale(Locale.forLanguageTag("vi"));
         return resolver;
     }
 }

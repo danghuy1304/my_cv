@@ -17,4 +17,8 @@ public interface UserMapper extends ReadableMapper<UserDTO, Long> {
     Optional<UserDTO> findByEmail(@Param("email") String email);
 
     Optional<UserDTO> findByToken(@Param("token") String token);
+
+    void updateStatus(@Param("id") Long id, @Param("status") Integer status);
+
+    void updatePassword(@Param("id") Long id, @Param("password") String password);
 }

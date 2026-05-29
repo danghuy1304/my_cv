@@ -91,7 +91,7 @@ public class RestExceptionHandler {
     public ResponseEntity<?> handleAuthorizedException(AuthorizedException e) {
         LOGGER.error("AuthorizedException: ", e);
         return RestResponse.error(HttpStatus.UNAUTHORIZED,
-                e.getClass().getSimpleName(),
+                e.getType(),
                 localizationUtils.getLocalizeMessage(e.getMessage()));
     }
 

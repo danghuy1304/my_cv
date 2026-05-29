@@ -14,6 +14,7 @@ import com.project.mycv.config.security.JwtTokenProvider;
 import com.project.mycv.config.security.password.CustomPasswordEncoder;
 import com.project.mycv.constant.MessageKeys;
 import com.project.mycv.constant.type.HTypeTokenInvalid;
+import com.project.mycv.domain.dto.ChangePasswordDTO;
 import com.project.mycv.domain.dto.UserDTO;
 import com.project.mycv.domain.dto.UserInsertDTO;
 import com.project.mycv.domain.dto.UserLoginDTO;
@@ -120,5 +121,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getById(Long id) {
         return findById(id).orElseThrow(() -> new NotFoundException(MessageKeys.USER_NOT_FOUND));
+    }
+
+    @Override
+    public void changePassword(Long userId, ChangePasswordDTO dto) {
+        UserDTO user = getById(userId);
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new ClientException(MessageKeys.OLD_PASSWORD_WRONG);
+        }
+        String encoded = passwordEncoder.encode(dto.getNewPassword());
+        userMapper.updatePassword(userId, encoded);
     }
 }

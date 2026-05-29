@@ -21,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
             return List.of();
         }
         // Trả về quyền dạng chuỗi, ví dụ: "ROLE_ADMIN"
-        return List.of(new SimpleGrantedAuthority(userDto.getRole().getRoleName()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + userDto.getRole().getRoleName()));
     }
 
     @Override

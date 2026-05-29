@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mycv}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_USERNAME:password}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 management:
   endpoints:
@@ -41,6 +41,9 @@ cookie:
 app:
   client:
     url: ${CLIENT_URL:http://localhost:3000}
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
+    base-url: ${BASE_URL:http://localhost:8080}
   security:
     cors:
       allowed-origins:
