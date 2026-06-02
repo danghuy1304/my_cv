@@ -1,8 +1,6 @@
 package com.project.mycv.config.security;
 
-import com.project.mycv.config.exception.AuthorizedException;
 import com.project.mycv.config.security.route.BypassRouteProperties;
-import com.project.mycv.constant.MessageKeys;
 import com.project.mycv.constant.SecurityConstant;
 import com.project.mycv.constant.type.HTypeTokenInvalid;
 import io.jsonwebtoken.ExpiredJwtException;

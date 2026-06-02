@@ -1,0 +1,86 @@
+services:
+
+  # ============================================================
+  # PostgreSQL Database
+  # ============================================================
+  db:
+    image: postgres:16-alpine
+    container_name: mycv_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-mycv}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./mycv.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-mycv}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Spring Boot Backend
+  # ============================================================
+  backend:
+    build:
+      context: ./backend/mycv
+      dockerfile: Dockerfile
+    container_name: mycv_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-mycv}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      # JWT — BẮT BUỘC phải set trong .env
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ACCESS_TOKEN: ${JWT_ACCESS_TOKEN:-600}
+      JWT_REFRESH_TOKEN: ${JWT_REFRESH_TOKEN:-604800}
+      # App
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-localhost}
+      BASE_URL: ${BASE_URL:-http://localhost:8080}
+      UPLOAD_DIR: /app/uploads
+      # Security
+      PASSWORD_SALT: ${PASSWORD_SALT}
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # React Frontend (Nginx)
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Dùng relative path "/api/v1" để nginx proxy đến backend (tránh CORS)
+        VITE_API_BASE_URL: /api/v1
+    container_name: mycv_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
+  uploads_data:
