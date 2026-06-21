@@ -1,28 +1,6 @@
 services:
 
   # ============================================================
-  # PostgreSQL Database
-  # ============================================================
-  db:
-    image: postgres:16-alpine
-    container_name: mycv_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_NAME:-mycv}
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./mycv.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-mycv}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ============================================================
   # Spring Boot Backend
   # ============================================================
   backend:
@@ -31,17 +9,12 @@ services:
       dockerfile: Dockerfile
     container_name: mycv_backend
     restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      # Database
-      DB_HOST: db
+      DB_HOST: 192.168.53.104 
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-mycv}
+      DB_NAME: ${DB_NAME:-mycv} 
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      # JWT — BẮT BUỘC phải set trong .env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ACCESS_TOKEN: ${JWT_ACCESS_TOKEN:-600}
       JWT_REFRESH_TOKEN: ${JWT_REFRESH_TOKEN:-604800}
@@ -62,6 +35,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    networks:
+      - shared_net
 
   # ============================================================
   # React Frontend (Nginx)
@@ -71,7 +46,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Dùng relative path "/api/v1" để nginx proxy đến backend (tránh CORS)
         VITE_API_BASE_URL: /api/v1
     container_name: mycv_frontend
     restart: unless-stopped
@@ -80,7 +54,13 @@ services:
         condition: service_healthy
     ports:
       - "3000:80"
+    networks:
+      - shared_net
 
 volumes:
-  postgres_data:
   uploads_data:
+
+networks:
+  shared_net:
+    external:
+      name: shared_network

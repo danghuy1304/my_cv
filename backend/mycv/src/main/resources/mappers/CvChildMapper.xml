@@ -4,67 +4,81 @@
 <mapper namespace="com.project.mycv.application.mapper.CvChildMapper">
 
     <!-- ===== SKILLS ===== -->
-    <delete id="deleteSkillsByCvId"> DELETE FROM cv_skills WHERE cv_id = #{cvId} </delete>
+    <delete id="deleteSkillsByCvId">DELETE FROM cv_skills WHERE cv_id = #{cvId}</delete>
 
-    <insert id="insertSkills"> INSERT INTO cv_skills (cv_id, skill_category, skill_name,
-        skill_level, display_order) VALUES <foreach collection="list" item="item" separator=",">
-        (#{cvId}, #{item.skillCategory}, #{item.skillName}, #{item.skillLevel},
-        #{item.displayOrder}) </foreach>
+    <insert id="insertSkills">INSERT INTO cv_skills (cv_id, skill_category, skill_name,
+        skill_level, display_order) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{cvId}, #{item.skillCategory}, #{item.skillName}, #{item.skillLevel},
+            #{item.displayOrder})
+        </foreach>
     </insert>
 
     <!-- ===== EDUCATIONS ===== -->
-    <delete id="deleteEducationsByCvId"> DELETE FROM cv_educations WHERE cv_id = #{cvId} </delete>
+    <delete id="deleteEducationsByCvId">DELETE FROM cv_educations WHERE cv_id = #{cvId}</delete>
 
-    <insert id="insertEducations"> INSERT INTO cv_educations (cv_id, school_name, major, degree,
-        gpa, description, start_date, end_date) VALUES <foreach collection="list" item="item"
-            separator=","> (#{cvId}, #{item.schoolName}, #{item.major}, #{item.degree}, #{item.gpa},
-        #{item.description}, #{item.startDate}, #{item.endDate}) </foreach>
+    <insert id="insertEducations">INSERT INTO cv_educations (cv_id, school_name, major, degree,
+        gpa, description, start_date, end_date) VALUES
+        <foreach collection="list" item="item"
+                 separator=",">(#{cvId}, #{item.schoolName}, #{item.major}, #{item.degree}, #{item.gpa},
+            #{item.description}, #{item.startDate}, #{item.endDate})
+        </foreach>
     </insert>
 
     <!-- ===== PROJECTS ===== -->
-    <delete id="deleteProjectsByCvId"> DELETE FROM cv_projects WHERE cv_id = #{cvId} </delete>
+    <delete id="deleteProjectsByCvId">DELETE FROM cv_projects WHERE cv_id = #{cvId}</delete>
 
     <!--
         Insert a single project and write the generated PK back into item.id
         so the service can immediately insert its tasks with the correct project_id.
     -->
-    <insert id="insertProject" useGeneratedKeys="true" keyProperty="item.id"> INSERT INTO
+    <insert id="insertProject" useGeneratedKeys="true" keyProperty="item.id">
+        INSERT INTO
         cv_projects (cv_id, project_name, company_name, team_size, role_in_project, tech_frontend,
-        tech_backend, tech_devops_tools, url_demo, start_date, end_date) VALUES (#{cvId},
-        #{item.projectName}, #{item.companyName}, #{item.teamSize}, #{item.roleInProject},
+        tech_backend, tech_devops_tools, url_demo, start_date, end_date) VALUES
+        (#{cvId}, #{item.projectName}, #{item.companyName}, #{item.teamSize}, #{item.roleInProject},
         #{item.techFrontend}, #{item.techBackend}, #{item.techDevopsTools}, #{item.urlDemo},
-        #{item.startDate}, #{item.endDate}) </insert>
+        #{item.startDate}, #{item.endDate})
+    </insert>
 
-    <insert id="insertProjectTasks"> INSERT INTO cv_project_tasks (project_id, task_description)
-        VALUES <foreach collection="list" item="item" separator=","> (#{projectId},
-        #{item.taskDescription}) </foreach>
+    <insert id="insertProjectTasks">INSERT INTO cv_project_tasks (project_id, task_description)
+        VALUES
+        <foreach collection="list" item="item" separator=",">(#{projectId},
+            #{item.taskDescription})
+        </foreach>
     </insert>
 
     <!-- ===== INTERESTS ===== -->
-    <delete id="deleteInterestsByCvId"> DELETE FROM cv_interests WHERE cv_id = #{cvId} </delete>
+    <delete id="deleteInterestsByCvId">DELETE FROM cv_interests WHERE cv_id = #{cvId}</delete>
 
-    <insert id="insertInterests"> INSERT INTO cv_interests (cv_id, interest_name, display_order)
-        VALUES <foreach collection="list" item="item" separator=","> (#{cvId}, #{item.interestName},
-        #{item.displayOrder}) </foreach>
+    <insert id="insertInterests">INSERT INTO cv_interests (cv_id, interest_name, display_order)
+        VALUES
+        <foreach collection="list" item="item" separator=",">(#{cvId}, #{item.interestName},
+            #{item.displayOrder})
+        </foreach>
     </insert>
 
     <!-- ===== CERTIFICATIONS ===== -->
-    <delete id="deleteCertificationsByCvId"> DELETE FROM cv_certifications WHERE cv_id = #{cvId} </delete>
+    <delete id="deleteCertificationsByCvId">DELETE FROM cv_certifications WHERE cv_id = #{cvId}</delete>
 
-    <insert id="insertCertifications"> INSERT INTO cv_certifications (cv_id, cert_name,
-        issuing_organization, issue_date, expiration_date, credential_id, credential_url) VALUES <foreach
-            collection="list" item="item" separator=","> (#{cvId}, #{item.certName},
-        #{item.issuingOrganization}, #{item.issueDate}, #{item.expirationDate},
-        #{item.credentialId}, #{item.credentialUrl}) </foreach>
+    <insert id="insertCertifications">INSERT INTO cv_certifications (cv_id, cert_name,
+        issuing_organization, issue_date, expiration_date, credential_id, credential_url) VALUES
+        <foreach
+                collection="list" item="item" separator=",">(#{cvId}, #{item.certName},
+            #{item.issuingOrganization}, #{item.issueDate}, #{item.expirationDate},
+            #{item.credentialId}, #{item.credentialUrl})
+        </foreach>
     </insert>
 
     <!-- ── Activities ──────────────────────────────────────────────────────── -->
-    <delete id="deleteActivitiesByCvId"> DELETE FROM cv_activities WHERE cv_id = #{cvId} </delete>
+    <delete id="deleteActivitiesByCvId">DELETE FROM cv_activities WHERE cv_id = #{cvId}</delete>
 
-    <insert id="insertActivities"> INSERT INTO cv_activities (cv_id, organization, role,
-        description, start_date, end_date) VALUES <foreach collection="list" item="item"
-            separator=","> (#{cvId}, #{item.organization}, #{item.role}, #{item.description},
-        #{item.startDate}, #{item.endDate}) </foreach>
+    <insert id="insertActivities">INSERT INTO cv_activities (cv_id, organization, role,
+        description, start_date, end_date) VALUES
+        <foreach collection="list" item="item"
+                 separator=",">(#{cvId}, #{item.organization}, #{item.role}, #{item.description},
+            #{item.startDate}, #{item.endDate})
+        </foreach>
     </insert>
 
 </mapper>

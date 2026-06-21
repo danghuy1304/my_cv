@@ -5,156 +5,159 @@
 
     <!-- ===== ResultMap: List (basic fields for paginated list) ===== -->
     <resultMap id="CvProfileListResultMap" type="com.project.mycv.domain.dto.cv.CvProfileDTO">
-        <id property="id" column="cv_id" />
-        <result property="userId" column="user_id" />
-        <result property="fullName" column="full_name" />
-        <result property="title" column="title" />
-        <result property="email" column="email" />
-        <result property="phone" column="phone" />
-        <result property="avatarUrl" column="avatar_url" />
-        <result property="status" column="status" />
-        <result property="isPublic" column="is_public" />
-        <result property="viewCount" column="view_count" />
-        <result property="publishedAt" column="published_at" />
-        <result property="createdDate" column="created_date" />
-        <result property="updatedDate" column="updated_date" />
+        <id property="id" column="cv_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="fullName" column="full_name"/>
+        <result property="title" column="title"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="status" column="status"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="updatedDate" column="updated_date"/>
     </resultMap>
 
     <!-- ===== ResultMap: Detail (full nested collections) ===== -->
     <resultMap id="CvProfileDetailResultMap"
-        type="com.project.mycv.domain.dto.cv.CvProfileDetailDTO">
-        <id property="id" column="cv_id" />
-        <result property="userId" column="user_id" />
-        <result property="fullName" column="full_name" />
-        <result property="title" column="title" />
-        <result property="birthday" column="birthday" />
-        <result property="phone" column="phone" />
-        <result property="email" column="email" />
-        <result property="githubUrl" column="github_url" />
-        <result property="linkedinUrl" column="linkedin_url" />
-        <result property="websiteUrl" column="website_url" />
-        <result property="address" column="address" />
-        <result property="summaryShort" column="summary_short" />
-        <result property="summaryLong" column="summary_long" />
-        <result property="avatarUrl" column="avatar_url" />
-        <result property="status" column="cv_status" />
-        <result property="isPublic" column="is_public" />
-        <result property="viewCount" column="view_count" />
-        <result property="publishedAt" column="published_at" />
-        <result property="deletedAt" column="deleted_at" />
-        <result property="createdDate" column="cv_created_date" />
-        <result property="updatedDate" column="cv_updated_date" />
+               type="com.project.mycv.domain.dto.cv.CvProfileDetailDTO">
+        <id property="id" column="cv_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="fullName" column="full_name"/>
+        <result property="title" column="title"/>
+        <result property="birthday" column="birthday"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="githubUrl" column="github_url"/>
+        <result property="linkedinUrl" column="linkedin_url"/>
+        <result property="websiteUrl" column="website_url"/>
+        <result property="address" column="address"/>
+        <result property="summaryShort" column="summary_short"/>
+        <result property="summaryLong" column="summary_long"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="status" column="cv_status"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="createdDate" column="cv_created_date"/>
+        <result property="updatedDate" column="cv_updated_date"/>
 
         <!-- Skills -->
         <collection property="skills"
-            ofType="com.project.mycv.domain.dto.cv.CvSkillDTO"
-            notNullColumn="skill_id">
-            <id property="id" column="skill_id" />
-            <result property="skillCategory" column="skill_category" />
-            <result property="skillName" column="skill_name" />
-            <result property="skillLevel" column="skill_level" />
-            <result property="displayOrder" column="skill_display_order" />
-            <result property="createdDate" column="skill_created_date" />
+                    ofType="com.project.mycv.domain.dto.cv.CvSkillDTO"
+                    notNullColumn="skill_id">
+            <id property="id" column="skill_id"/>
+            <result property="skillCategory" column="skill_category"/>
+            <result property="skillName" column="skill_name"/>
+            <result property="skillLevel" column="skill_level"/>
+            <result property="displayOrder" column="skill_display_order"/>
+            <result property="createdDate" column="skill_created_date"/>
         </collection>
 
         <!-- Educations -->
         <collection property="educations"
-            ofType="com.project.mycv.domain.dto.cv.CvEducationDTO"
-            notNullColumn="edu_id">
-            <id property="id" column="edu_id" />
-            <result property="schoolName" column="school_name" />
-            <result property="major" column="major" />
-            <result property="degree" column="degree" />
-            <result property="gpa" column="gpa" />
-            <result property="description" column="edu_description" />
-            <result property="startDate" column="edu_start_date" />
-            <result property="endDate" column="edu_end_date" />
-            <result property="createdDate" column="edu_created_date" />
+                    ofType="com.project.mycv.domain.dto.cv.CvEducationDTO"
+                    notNullColumn="edu_id">
+            <id property="id" column="edu_id"/>
+            <result property="schoolName" column="school_name"/>
+            <result property="major" column="major"/>
+            <result property="degree" column="degree"/>
+            <result property="gpa" column="gpa"/>
+            <result property="description" column="edu_description"/>
+            <result property="startDate" column="edu_start_date"/>
+            <result property="endDate" column="edu_end_date"/>
+            <result property="createdDate" column="edu_created_date"/>
         </collection>
 
         <!-- Projects with nested Tasks -->
         <collection property="projects"
-            ofType="com.project.mycv.domain.dto.cv.CvProjectDTO"
-            notNullColumn="project_id">
-            <id property="id" column="project_id" />
-            <result property="projectName" column="project_name" />
-            <result property="companyName" column="company_name" />
-            <result property="teamSize" column="team_size" />
-            <result property="roleInProject" column="role_in_project" />
-            <result property="techFrontend" column="tech_frontend" />
-            <result property="techBackend" column="tech_backend" />
-            <result property="techDevopsTools" column="tech_devops_tools" />
-            <result property="urlDemo" column="url_demo" />
-            <result property="startDate" column="project_start_date" />
-            <result property="endDate" column="project_end_date" />
-            <result property="createdDate" column="project_created_date" />
+                    ofType="com.project.mycv.domain.dto.cv.CvProjectDTO"
+                    notNullColumn="project_id">
+            <id property="id" column="project_id"/>
+            <result property="projectName" column="project_name"/>
+            <result property="companyName" column="company_name"/>
+            <result property="teamSize" column="team_size"/>
+            <result property="roleInProject" column="role_in_project"/>
+            <result property="techFrontend" column="tech_frontend"/>
+            <result property="techBackend" column="tech_backend"/>
+            <result property="techDevopsTools" column="tech_devops_tools"/>
+            <result property="urlDemo" column="url_demo"/>
+            <result property="startDate" column="project_start_date"/>
+            <result property="endDate" column="project_end_date"/>
+            <result property="createdDate" column="project_created_date"/>
 
             <collection property="tasks"
-                ofType="com.project.mycv.domain.dto.cv.CvProjectTaskDTO"
-                notNullColumn="task_id">
-                <id property="id" column="task_id" />
-                <result property="taskDescription" column="task_description" />
+                        ofType="com.project.mycv.domain.dto.cv.CvProjectTaskDTO"
+                        notNullColumn="task_id">
+                <id property="id" column="task_id"/>
+                <result property="taskDescription" column="task_description"/>
             </collection>
         </collection>
 
         <!-- Interests -->
         <collection property="interests"
-            ofType="com.project.mycv.domain.dto.cv.CvInterestDTO"
-            notNullColumn="interest_id">
-            <id property="id" column="interest_id" />
-            <result property="interestName" column="interest_name" />
-            <result property="displayOrder" column="interest_display_order" />
-            <result property="createdDate" column="interest_created_date" />
+                    ofType="com.project.mycv.domain.dto.cv.CvInterestDTO"
+                    notNullColumn="interest_id">
+            <id property="id" column="interest_id"/>
+            <result property="interestName" column="interest_name"/>
+            <result property="displayOrder" column="interest_display_order"/>
+            <result property="createdDate" column="interest_created_date"/>
         </collection>
 
         <!-- Certifications -->
         <collection property="certifications"
-            ofType="com.project.mycv.domain.dto.cv.CvCertificationDTO"
-            notNullColumn="cert_id">
-            <id property="id" column="cert_id" />
-            <result property="certName" column="cert_name" />
-            <result property="issuingOrganization" column="issuing_organization" />
-            <result property="issueDate" column="issue_date" />
-            <result property="expirationDate" column="expiration_date" />
-            <result property="credentialId" column="credential_id" />
-            <result property="credentialUrl" column="credential_url" />
-            <result property="createdDate" column="cert_created_date" />
+                    ofType="com.project.mycv.domain.dto.cv.CvCertificationDTO"
+                    notNullColumn="cert_id">
+            <id property="id" column="cert_id"/>
+            <result property="certName" column="cert_name"/>
+            <result property="issuingOrganization" column="issuing_organization"/>
+            <result property="issueDate" column="issue_date"/>
+            <result property="expirationDate" column="expiration_date"/>
+            <result property="credentialId" column="credential_id"/>
+            <result property="credentialUrl" column="credential_url"/>
+            <result property="createdDate" column="cert_created_date"/>
         </collection>
 
         <!-- Activities -->
         <collection property="activities"
-            ofType="com.project.mycv.domain.dto.cv.CvActivityDTO"
-            notNullColumn="activity_id">
-            <id property="id" column="activity_id" />
-            <result property="organization" column="activity_organization" />
-            <result property="role" column="activity_role" />
-            <result property="description" column="activity_description" />
-            <result property="startDate" column="activity_start_date" />
-            <result property="endDate" column="activity_end_date" />
+                    ofType="com.project.mycv.domain.dto.cv.CvActivityDTO"
+                    notNullColumn="activity_id">
+            <id property="id" column="activity_id"/>
+            <result property="organization" column="activity_organization"/>
+            <result property="role" column="activity_role"/>
+            <result property="description" column="activity_description"/>
+            <result property="startDate" column="activity_start_date"/>
+            <result property="endDate" column="activity_end_date"/>
         </collection>
     </resultMap>
 
     <!-- ===== INSERT ===== -->
     <insert id="insert"
-        parameterType="com.project.mycv.domain.dto.cv.CvProfileInsertDTO"
-        useGeneratedKeys="true"
-        keyProperty="id"> INSERT INTO cv_profiles (user_id, full_name, title, status, is_public,
-        view_count) VALUES (#{userId}, #{fullName}, #{title}, #{status}, #{isPublic}, #{viewCount}) </insert>
+            parameterType="com.project.mycv.domain.dto.cv.CvProfileInsertDTO"
+            useGeneratedKeys="true"
+            keyProperty="id">INSERT INTO cv_profiles (user_id, full_name, title, status, is_public,
+        view_count) VALUES (#{userId}, #{fullName}, #{title}, #{status}, #{isPublic}, #{viewCount})
+    </insert>
 
     <!-- ===== FIND ALL (used by PaginationUtility — no LIMIT/OFFSET here) ===== -->
-    <select id="findAll" resultMap="CvProfileListResultMap"> SELECT p.id AS cv_id, p.user_id,
+    <select id="findAll" resultMap="CvProfileListResultMap">SELECT p.id AS cv_id, p.user_id,
         p.full_name, p.title, p.email, p.phone, p.avatar_url, p.status, p.is_public, p.view_count,
         p.published_at, p.created_date, p.updated_date FROM cv_profiles p WHERE p.deleted_at IS NULL
-        ORDER BY p.created_date DESC </select>
+        ORDER BY p.created_date DESC
+    </select>
 
     <!-- ===== FIND BY ID (basic DTO, existence check) ===== -->
-    <select id="findById" resultMap="CvProfileListResultMap"> SELECT p.id AS cv_id, p.user_id,
+    <select id="findById" resultMap="CvProfileListResultMap">SELECT p.id AS cv_id, p.user_id,
         p.full_name, p.title, p.email, p.phone, p.avatar_url, p.status, p.is_public, p.view_count,
         p.published_at, p.created_date, p.updated_date FROM cv_profiles p WHERE p.id = #{id} AND
-        p.deleted_at IS NULL </select>
+        p.deleted_at IS NULL
+    </select>
 
     <!-- ===== FIND DETAIL BY ID (nested ResultMap with collections) ===== -->
-    <select id="findDetailById" resultMap="CvProfileDetailResultMap"> SELECT -- cv_profiles p.id AS
+    <select id="findDetailById" resultMap="CvProfileDetailResultMap">SELECT -- cv_profiles p.id AS
         cv_id, p.user_id, p.full_name, p.title, p.birthday, p.phone, p.email, p.github_url,
         p.linkedin_url, p.website_url, p.address, p.summary_short, p.summary_long, p.avatar_url,
         p.status AS cv_status, p.is_public, p.view_count, p.published_at, p.deleted_at,
@@ -177,16 +180,20 @@
         cv_educations e ON e.cv_id = p.id LEFT JOIN cv_projects pr ON pr.cv_id = p.id LEFT JOIN
         cv_project_tasks pt ON pt.project_id = pr.id LEFT JOIN cv_interests i ON i.cv_id = p.id LEFT
         JOIN cv_certifications c ON c.cv_id = p.id LEFT JOIN cv_activities act ON act.cv_id = p.id
-        WHERE p.id = #{id} AND p.deleted_at IS NULL </select>
+        WHERE p.id = #{id} AND p.deleted_at IS NULL
+    </select>
 
     <!-- ===== FIND BY USER ID (basic DTO — most recent non-deleted CV) ===== -->
-    <select id="findByUserId" resultMap="CvProfileListResultMap"> SELECT p.id AS cv_id, p.user_id,
+    <select id="findByUserId" resultMap="CvProfileListResultMap">
+        SELECT p.id AS cv_id, p.user_id,
         p.full_name, p.title, p.email, p.phone, p.avatar_url, p.status, p.is_public, p.view_count,
-        p.published_at, p.created_date, p.updated_date FROM cv_profiles p WHERE p.user_id =
-        #{userId} AND p.deleted_at IS NULL ORDER BY p.created_date DESC LIMIT 1 </select>
+        p.published_at, p.created_date, p.updated_date
+        FROM cv_profiles p WHERE p.user_id = #{userId} AND p.deleted_at IS NULL
+        ORDER BY p.created_date DESC LIMIT 1
+    </select>
 
     <!-- ===== FIND DETAIL BY USER ID (nested collections — most recent non-deleted CV) ===== -->
-    <select id="findDetailByUserId" resultMap="CvProfileDetailResultMap"> SELECT p.id AS cv_id,
+    <select id="findDetailByUserId" resultMap="CvProfileDetailResultMap">SELECT p.id AS cv_id,
         p.user_id, p.full_name, p.title, p.birthday, p.phone, p.email, p.github_url, p.linkedin_url,
         p.website_url, p.address, p.summary_short, p.summary_long, p.avatar_url, p.status AS
         cv_status, p.is_public, p.view_count, p.published_at, p.deleted_at, p.created_date AS
@@ -208,33 +215,43 @@
         cv_project_tasks pt ON pt.project_id = pr.id LEFT JOIN cv_interests i ON i.cv_id = p.id LEFT
         JOIN cv_certifications c ON c.cv_id = p.id LEFT JOIN cv_activities act ON act.cv_id = p.id
         WHERE p.id = ( SELECT p2.id FROM cv_profiles p2 WHERE p2.user_id = #{userId} AND
-        p2.deleted_at IS NULL ORDER BY p2.created_date DESC LIMIT 1 ) </select>
+        p2.deleted_at IS NULL ORDER BY p2.created_date DESC LIMIT 1 )
+    </select>
 
     <!-- ===== UPDATE personal info + social links + summary ===== -->
     <!-- Parameter order: update(@Param("dto") entity, @Param("id") id) -->
-    <update id="update"> UPDATE cv_profiles SET full_name = #{dto.fullName}, title = #{dto.title},
+    <update id="update">
+        UPDATE cv_profiles SET full_name = #{dto.fullName}, title = #{dto.title},
         birthday = #{dto.birthday}, phone = #{dto.phone}, email = #{dto.email}, github_url =
         #{dto.githubUrl}, linkedin_url = #{dto.linkedinUrl}, website_url = #{dto.websiteUrl},
         address = #{dto.address}, summary_short = #{dto.summaryShort}, summary_long =
         #{dto.summaryLong}, avatar_url = #{dto.avatarUrl}, updated_date = CURRENT_TIMESTAMP WHERE id
-        = #{id} AND deleted_at IS NULL </update>
+        = #{id} AND deleted_at IS NULL
+    </update>
 
     <!-- ===== UPDATE status + is_public ===== -->
     <!-- is_public is auto-synced: TRUE when PUBLISHED, FALSE otherwise -->
-    <update id="updateStatus"> UPDATE cv_profiles SET status = #{dto.status}, is_public = CASE WHEN
+    <update id="updateStatus">
+        UPDATE cv_profiles SET status = #{dto.status}, is_public = CASE WHEN
         #{dto.status} = 'PUBLISHED' THEN TRUE ELSE FALSE END, published_at = CASE WHEN #{dto.status}
         = 'PUBLISHED' AND published_at IS NULL THEN CURRENT_TIMESTAMP ELSE published_at END,
-        updated_date = CURRENT_TIMESTAMP WHERE id = #{id} AND deleted_at IS NULL </update>
+        updated_date = CURRENT_TIMESTAMP WHERE id = #{id} AND deleted_at IS NULL
+    </update>
 
     <!-- ===== DELETE (hard delete — DB CASCADE handles child tables) ===== -->
-    <delete id="delete"> DELETE FROM cv_profiles WHERE id = #{id} </delete>
+    <delete id="delete">
+        DELETE FROM cv_profiles WHERE id = #{id}
+    </delete>
 
     <!-- ===== UPDATE avatar_url only ===== -->
-    <update id="updateAvatarUrl"> UPDATE cv_profiles SET avatar_url = #{avatarUrl}, updated_date =
-        CURRENT_TIMESTAMP WHERE id = #{cvId} AND deleted_at IS NULL </update>
+    <update id="updateAvatarUrl">
+        UPDATE cv_profiles SET avatar_url = #{avatarUrl}, updated_date =
+        CURRENT_TIMESTAMP WHERE id = #{cvId} AND deleted_at IS NULL
+    </update>
 
     <!-- ===== FIND avatar_url by cv id ===== -->
-    <select id="findAvatarUrl" resultType="String"> SELECT avatar_url FROM cv_profiles WHERE id =
-        #{cvId} AND deleted_at IS NULL </select>
+    <select id="findAvatarUrl" resultType="String">
+        SELECT avatar_url FROM cv_profiles WHERE id = #{cvId} AND deleted_at IS NULL
+    </select>
 
 </mapper>

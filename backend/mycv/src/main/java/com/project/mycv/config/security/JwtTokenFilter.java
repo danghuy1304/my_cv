@@ -11,7 +11,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,8 +28,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
-    @Value("${api.version1}")
-    private String API_VERSION1;
     private final CustomUserDetailService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final BypassRouteProperties bypassRouteProperties;
