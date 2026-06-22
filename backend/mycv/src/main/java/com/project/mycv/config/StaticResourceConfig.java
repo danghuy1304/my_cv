@@ -12,8 +12,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Serves uploaded static files (e.g. avatars) under /uploads/**.
- * The physical path is resolved from app.upload.dir in application.yaml.
+ * Static resource configuration - DISABLED
+ * Now using UploadController to serve files directly via REST endpoint
+ * This provides better control, logging, and security checks
  */
 @Configuration
 @RequiredArgsConstructor
@@ -24,6 +25,9 @@ public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // DISABLED: Using UploadController instead for better control
+        // Keeping this class for reference
+        /*
         Path uploadPath = Paths.get(props.getDir()).toAbsolutePath().normalize();
         String absPath = uploadPath.toUri().toString();
         if (!absPath.endsWith("/")) absPath += "/";
@@ -36,5 +40,8 @@ public class StaticResourceConfig implements WebMvcConfigurer {
         
         registry.addResourceHandler("/api/v1/uploads/**")
                 .addResourceLocations(absPath);
+        */
+        
+        LOGGER.info("ℹ️ StaticResourceConfig disabled - using UploadController for file serving");
     }
 }
