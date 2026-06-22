@@ -12,5 +12,5 @@ bypass:
       method: GET
     - path: /api/v1/cv/**
       method: POST
-    - path: /uploads/avatars/**
+    - path: /api/v1/uploads/avatars/**
       method: GET

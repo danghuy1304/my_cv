@@ -33,9 +33,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     public String storeAvatar(Long cvId, MultipartFile file) {
         validateImage(file);
 
-        String ext      = getExtension(Objects.requireNonNull(file.getOriginalFilename()));
+        String ext = getExtension(Objects.requireNonNull(file.getOriginalFilename()));
         String filename = "cv-" + cvId + "." + ext;
-        Path   dir      = Paths.get(props.getDir(), "avatars");
+        Path dir = Paths.get(props.getDir(), "avatars");
 
         try {
             Files.createDirectories(dir);
@@ -46,7 +46,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             throw new RuntimeException("Could not store avatar file", e);
         }
 
-        return props.getBaseUrl() + "/uploads/avatars/" + filename;
+        return props.getBaseUrl() + "/api/v1/uploads/avatars/" + filename;
     }
 
     @Override
@@ -86,10 +86,13 @@ public class FileStorageServiceImpl implements FileStorageService {
         String prefix = "cv-" + cvId + ".";
         try (var stream = Files.list(dir)) {
             stream.filter(p -> p.getFileName().toString().startsWith(prefix))
-                  .forEach(p -> {
-                      try { Files.deleteIfExists(p); }
-                      catch (IOException ex) { LOGGER.warn("Could not delete {}", p, ex); }
-                  });
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException ex) {
+                            LOGGER.warn("Could not delete {}", p, ex);
+                        }
+                    });
         }
     }
 }

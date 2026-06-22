@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "app.upload")
 public class FileStorageProperties {
-    private String dir = "./uploads";
+    private String dir = "./api/v1/uploads";
     private String baseUrl = "http://localhost:8080";
 }
