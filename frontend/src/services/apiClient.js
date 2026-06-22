@@ -4,8 +4,7 @@ import { tokenRefreshed, logoutSuccess } from "@/store/slices/authSlice";
 import { clearProfile } from "@/store/slices/profileSlice";
 import { clearCVProfile } from "@/store/slices/cvProfileSlice";
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+const BASE_URL = "/api/v1";
 
 // ============================================================
 // AXIOS INSTANCE CHÍNH — dùng cho toàn bộ API call
