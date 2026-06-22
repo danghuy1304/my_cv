@@ -513,7 +513,7 @@ const CVRenderer = ({ cv, t, isDark, viewport = "desktop" }) => {
       }`}
     >
       {/* Decorative Blur Backgrounds */}
-      <div className="absolute top-0 inset-x-0 h-[600px] overflow-hidden pointer-events-none print:hidden z-0">
+      <div className="absolute top-0 inset-x-0 overflow-hidden pointer-events-none print:hidden z-0">
         <div
           className="absolute -top-[10%] -left-[10%] w-[50%] aspect-square rounded-full bg-gradient-to-br from-blue-500/10 to-indigo-500/0 blur-[120px] animate-pulse"
           style={{ animationDuration: "8s" }}
