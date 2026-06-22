@@ -52,6 +52,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    volumes:
+      # CHÈN THÊM DÒNG NÀY: Chia sẻ chung thư mục ảnh với backend
+      - uploads_data:/usr/share/nginx/html/uploads
     ports:
       - "3000:80"
     networks:
