@@ -4,6 +4,8 @@ import com.project.mycv.config.security.cors.CorsProperties;
 import com.project.mycv.config.security.route.BypassRouteProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -16,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -24,6 +27,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
+
     private final JwtTokenFilter jwtTokenFilter;
     private final BypassRouteProperties bypassRouteProperties;
     private final CorsProperties corsProperties;
@@ -37,10 +42,20 @@ public class WebSecurityConfig {
      */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        String[] publicPaths = bypassRouteProperties.getRoutes().stream()
-                .map(BypassRouteProperties.BypassRoute::getPath)
-                .distinct()
-                .toArray(String[]::new);
+        List<BypassRouteProperties.BypassRoute> routes = bypassRouteProperties.getRoutes();
+        String[] publicPaths;
+
+        if (routes == null || routes.isEmpty()) {
+            LOGGER.warn("⚠️ Bypass routes is null or empty! All endpoints will require authentication.");
+            publicPaths = new String[0];
+        } else {
+            publicPaths = routes.stream()
+                    .map(BypassRouteProperties.BypassRoute::getPath)
+                    .distinct()
+                    .toArray(String[]::new);
+            LOGGER.info("✅ Loaded {} public paths for SecurityFilterChain: {}",
+                    publicPaths.length, Arrays.toString(publicPaths));
+        }
         http
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)

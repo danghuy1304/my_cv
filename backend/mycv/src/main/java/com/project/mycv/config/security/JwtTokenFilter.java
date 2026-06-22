@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -39,11 +40,21 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain)
             throws IOException {
         final String authHeader = request.getHeader(SecurityConstant.HEADER_AUTHORIZATION);
+        String servletPath = request.getServletPath();
+        String requestURI = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        String method = request.getMethod();
+
+        LOGGER.debug("🔍 Request Details: method={}, servletPath={}, requestURI={}, contextPath={}",
+                method, servletPath, requestURI, contextPath);
+
         try {
             if (isByPassToken(request)) {
+                LOGGER.debug("✅ Bypassing JWT check for {} {}", method, servletPath);
                 filterChain.doFilter(request, response);
                 return;
             }
+            LOGGER.debug("🔒 Checking JWT for {} {}", method, servletPath);
             if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(SecurityConstant.TOKEN_PREFIX)) {
                 sendUnauthorized(response, HTypeTokenInvalid.ACCESS_TOKEN_INVALID.getValue());
                 return;
@@ -93,8 +104,28 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private boolean isByPassToken(HttpServletRequest request) {
         String path = request.getServletPath();
         String method = request.getMethod();
-        return bypassRouteProperties.getRoutes().stream()
-                .anyMatch(r -> PATH_MATCHER.match(r.getPath(), path)
-                        && method.equalsIgnoreCase(r.getMethod()));
+        List<BypassRouteProperties.BypassRoute> routes = bypassRouteProperties.getRoutes();
+
+        if (routes == null) {
+            LOGGER.warn("⚠️ Bypass routes is NULL! Request {} {} will be blocked.", method, path);
+            return false;
+        }
+
+        boolean isBypassed = routes.stream()
+                .anyMatch(r -> {
+                    boolean pathMatch = PATH_MATCHER.match(r.getPath(), path);
+                    boolean methodMatch = method.equalsIgnoreCase(r.getMethod());
+                    if (pathMatch && methodMatch) {
+                        LOGGER.debug("✅ Matched bypass rule: {} {} -> route: {} {}",
+                                method, path, r.getMethod(), r.getPath());
+                    }
+                    return pathMatch && methodMatch;
+                });
+
+        if (!isBypassed) {
+            LOGGER.debug("❌ No bypass match for {} {}", method, path);
+        }
+
+        return isBypassed;
     }
 }
