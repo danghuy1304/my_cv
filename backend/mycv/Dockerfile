@@ -20,7 +20,7 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Tạo thư mục uploads
-RUN mkdir -p /app/api/v1/uploads/avatars
+RUN mkdir -p /app/uploads/avatars
 
 COPY --from=builder /app/target/*.jar app.jar
 
