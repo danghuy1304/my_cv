@@ -10,7 +10,7 @@ services:
     container_name: mycv_backend
     restart: unless-stopped
     environment:
-      DB_HOST: 192.168.53.104 
+      DB_HOST: postgres_db 
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-mycv} 
       DB_USERNAME: ${DB_USERNAME:-postgres}
