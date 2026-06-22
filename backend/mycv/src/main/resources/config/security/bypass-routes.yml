@@ -14,3 +14,5 @@ bypass:
       method: POST
     - path: /api/v1/uploads/avatars/**
       method: GET
+    - path: /api/v1/debug/**
+      method: GET

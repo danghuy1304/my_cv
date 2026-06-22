@@ -39,14 +39,19 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         try {
             Files.createDirectories(dir);
+            LOGGER.info("📸 Storing avatar for cvId={}: filename={}, dir={}", cvId, filename, dir.toAbsolutePath());
             deleteExistingAvatarsForCv(dir, cvId); // remove old file (any ext)
-            Files.copy(file.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+            Path targetFile = dir.resolve(filename);
+            Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+            LOGGER.info("✅ Avatar stored successfully: {}", targetFile.toAbsolutePath());
         } catch (IOException e) {
             LOGGER.error("Failed to store avatar for cvId={}", cvId, e);
             throw new RuntimeException("Could not store avatar file", e);
         }
 
-        return props.getBaseUrl() + "/api/v1/uploads/avatars/" + filename;
+        String url = props.getBaseUrl() + "/api/v1/uploads/avatars/" + filename;
+        LOGGER.info("🔗 Generated avatar URL: {}", url);
+        return url;
     }
 
     @Override
