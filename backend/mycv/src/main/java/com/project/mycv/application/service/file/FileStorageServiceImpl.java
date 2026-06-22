@@ -49,7 +49,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             throw new RuntimeException("Could not store avatar file", e);
         }
 
-        String url = props.getBaseUrl() + "/api/v1/uploads/avatars/" + filename;
+        String url = props.getBaseUrl() + "/uploads/avatars/" + filename;
         LOGGER.info("🔗 Generated avatar URL: {}", url);
         return url;
     }

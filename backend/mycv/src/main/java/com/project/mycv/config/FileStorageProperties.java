@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app.upload")
 public class FileStorageProperties {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileStorageProperties.class);
-    
-    private String dir = "./api/v1/uploads";
+
+    private String dir = "./uploads";
     private String baseUrl = "http://localhost:8080";
-    
+
     @PostConstruct
     public void logConfig() {
         LOGGER.info("⚙️ FileStorageProperties initialized:");

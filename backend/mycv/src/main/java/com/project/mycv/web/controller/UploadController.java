@@ -26,7 +26,7 @@ import java.nio.file.Paths;
  * This controller handles serving files from the upload directory
  */
 @RestController
-@RequestMapping("/api/v1/uploads")
+@RequestMapping("/uploads")
 @RequiredArgsConstructor
 public class UploadController {
 
@@ -42,30 +42,30 @@ public class UploadController {
         try {
             Path uploadPath = Paths.get(props.getDir()).toAbsolutePath().normalize();
             Path filePath = uploadPath.resolve("avatars").resolve(filename).normalize();
-            
+
             LOGGER.info("📥 Serving avatar: {}", filename);
             LOGGER.debug("  → Full path: {}", filePath);
-            
+
             // Security check: prevent path traversal attacks
             if (!filePath.startsWith(uploadPath)) {
                 LOGGER.warn("⚠️ Path traversal attempt detected: {}", filename);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            
+
             // Check if file exists
             if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
                 LOGGER.warn("❌ File not found: {}", filePath);
                 return ResponseEntity.notFound().build();
             }
-            
+
             // Load file as Resource
             Resource resource = new UrlResource(filePath.toUri());
-            
+
             if (!resource.exists() || !resource.isReadable()) {
                 LOGGER.warn("❌ File not readable: {}", filePath);
                 return ResponseEntity.notFound().build();
             }
-            
+
             // Determine content type
             String contentType;
             try {
@@ -73,20 +73,20 @@ public class UploadController {
             } catch (IOException e) {
                 contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
             }
-            
+
             if (contentType == null) {
                 contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
             }
-            
-            LOGGER.info("✅ Serving file: {} (type: {}, size: {} bytes)", 
-                       filename, contentType, resource.contentLength());
-            
+
+            LOGGER.info("✅ Serving file: {} (type: {}, size: {} bytes)",
+                    filename, contentType, resource.contentLength());
+
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, 
-                           "inline; filename=\"" + resource.getFilename() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"" + resource.getFilename() + "\"")
                     .body(resource);
-                    
+
         } catch (MalformedURLException e) {
             LOGGER.error("❌ Malformed URL for file: {}", filename, e);
             return ResponseEntity.badRequest().build();
